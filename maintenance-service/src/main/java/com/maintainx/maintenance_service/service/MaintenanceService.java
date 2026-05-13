@@ -46,4 +46,19 @@ public class MaintenanceService {
 
         return repository.getTotalCollectedAmount();
     }
+
+    public MaintenanceBill getBill(Long id) {
+        return repository.findById(id).orElseThrow(()->new RuntimeException("nothing is found"));
+    }
+
+    public void markAsPaid(Long id) {
+
+        MaintenanceBill bill =
+                repository.findById(id)
+                        .orElseThrow();
+
+        bill.setPaymentStatus("PAID");
+
+        repository.save(bill);
+    }
 }

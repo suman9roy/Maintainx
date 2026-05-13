@@ -1,5 +1,6 @@
 package com.maintainx.payment_service.entity;
 
+import com.maintainx.payment_service.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +19,8 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long maintenanceBillId;
+
     private String flatNumber;
 
     private Double amount;
@@ -26,7 +29,10 @@ public class Payment {
 
     private String razorpayPaymentId;
 
-    private String paymentStatus;
+    private String razorpaySignature;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
 
     private LocalDateTime paymentDate;
 }

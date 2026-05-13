@@ -40,4 +40,18 @@ public class MaintenanceController {
 
         return service.getTotalCollectedAmount();
     }
+    @GetMapping("/bill/{id}")
+    public MaintenanceBill getBill(
+            @PathVariable Long id) {
+
+        return service.getBill(id);
+    }
+    @PutMapping("/mark-paid/{id}")
+    public String markPaid(
+            @PathVariable Long id) {
+
+        service.markAsPaid(id);
+
+        return "Bill Marked As Paid";
+    }
 }
