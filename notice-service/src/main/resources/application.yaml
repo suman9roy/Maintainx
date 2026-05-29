@@ -1,3 +1,6 @@
 spring:
   application:
     name: notice-service
+
+  config:
+    import: optional:configserver:http://localhost:8888

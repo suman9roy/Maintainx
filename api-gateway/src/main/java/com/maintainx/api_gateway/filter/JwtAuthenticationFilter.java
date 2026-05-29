@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
-public class AuthenticationFilter
+public class JwtAuthenticationFilter
         implements GlobalFilter, Ordered {
 
     private final RouteValidator validator;
@@ -57,9 +57,7 @@ public class AuthenticationFilter
             }
 
             String token = authHeader.substring(7);
-            System.out.println("Auth Header: " + authHeader);
-            System.out.println("Token: " + token);
-            System.out.println("Is Valid: " + jwtUtil.validateToken(token));
+
             if (!jwtUtil.validateToken(token)) {
 
                 exchange.getResponse()
@@ -67,18 +65,6 @@ public class AuthenticationFilter
 
                 return exchange.getResponse().setComplete();
             }
-
-
-            String role = jwtUtil.extractRole(token);
-
-            exchange = exchange.mutate()
-                    .request(
-                            exchange.getRequest()
-                                    .mutate()
-                                    .header("X-User-Role", role)
-                                    .build()
-                    )
-                    .build();
         }
 
         return chain.filter(exchange);

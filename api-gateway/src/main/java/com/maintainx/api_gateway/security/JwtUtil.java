@@ -3,6 +3,7 @@ package com.maintainx.api_gateway.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,36 +20,19 @@ public class JwtUtil {
 
         try {
 
-            Key key = Keys.hmacShaKeyFor(
-                    secret.getBytes()
-            );
+            Key key = Keys.hmacShaKeyFor(secret.getBytes());
 
-            Jwts.parserBuilder()
+            Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
-                    .parseClaimsJws(token);
+                    .parseClaimsJws(token)
+                    .getBody();
 
-            return true;
+            return claims.getExpiration().getTime()
+                    > System.currentTimeMillis();
 
         } catch (Exception e) {
-
-            e.printStackTrace();
-
             return false;
         }
-    }
-    public String extractRole(String token) {
-
-        Key key = Keys.hmacShaKeyFor(
-                secret.getBytes()
-        );
-
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        return claims.get("role", String.class);
     }
 }
