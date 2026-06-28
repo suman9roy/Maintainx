@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ConfigServerApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="envFilePaths">
+      <option value="$PROJECT_DIR$/../config-server/.env" />
+    </option>
+    <option name="MAIN_CLASS_NAME" value="com.maintainx.config_server.ConfigServerApplication" />
+    <module name="config-server" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.maintainx.config_server.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
