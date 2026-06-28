@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @FeignClient(name = "maintenance-service")
 public interface MaintenanceClient {
 
+
     @GetMapping("/maintenance/total-collected")
     Double getTotalCollectedAmount();
 }
