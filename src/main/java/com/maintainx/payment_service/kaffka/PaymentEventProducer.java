@@ -31,7 +31,7 @@ public class PaymentEventProducer {
 
 
 
-        log.info("Payment success event published — billId={}, flat={}, amount={}",
-                event.getMaintenanceBillId(), event.getFlatNumber(), event.getAmount());
+        log.info("Payment success event published — billId={}, flat={}, amount={} ,paymentId={}",
+                event.getMaintenanceBillId(), event.getFlatNumber(), event.getAmount(),event.getPaymentId());
     }
 }

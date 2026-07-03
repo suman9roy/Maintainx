@@ -6,8 +6,9 @@ import com.maintainx.payment_service.dto.RazorpayOrderResponse;
 import com.maintainx.payment_service.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
+@Slf4j
 @RestController
 @RequestMapping("/payments")
 @RequiredArgsConstructor
@@ -20,7 +21,7 @@ public class PaymentController {
             @Valid @RequestBody CreateOrderRequest request,
             @RequestHeader("X-User-Id")   String userId,
             @RequestHeader("X-User-Role") String role) throws Exception {
-
+        log.info("Creating order for user: {}", userId);
         return service.createOrder(request, userId, role);
     }
 

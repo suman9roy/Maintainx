@@ -5,7 +5,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import com.maintainx.payment_service.dto.MarkBillPaidRequest;
 
 import java.util.UUID;
 
@@ -32,5 +34,8 @@ public interface MaintenanceClient {
      * so the payment is already confirmed legitimate at that point.
      */
     @PutMapping("/maintenance/mark-paid/{id}")
-    void markBillAsPaid(@PathVariable UUID id);
+    void markBillAsPaid(
+            @PathVariable UUID id,
+            @RequestBody MarkBillPaidRequest request,
+            @RequestHeader("X-User-Id") String adminId);
 }

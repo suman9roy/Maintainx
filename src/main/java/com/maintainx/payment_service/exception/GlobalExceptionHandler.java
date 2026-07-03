@@ -97,7 +97,8 @@ public class GlobalExceptionHandler {
             com.razorpay.RazorpayException ex, HttpServletRequest request) {
 
         log.error("Razorpay API error on {}: {}", request.getRequestURI(), ex.getMessage());
-
+//need full stack trace for debugging, but not for user-facing message
+        log.error("Full stack trace for debugging:", ex);
         return build(HttpStatus.BAD_GATEWAY, "Payment Gateway Error",
                 "Payment gateway returned an error. Please try again or contact support.",
                 request, null);

@@ -19,6 +19,8 @@ public class BillSyncRetryScheduler {
 
     private final PaymentRepository repository;
     private final MaintenanceClient maintenanceClient;
+    @org.springframework.beans.factory.annotation.Value("${service.system-admin-id:00000000-0000-0000-0000-000000000000}")
+    private String systemAdminId;
 
     // After this many failed attempts, stop retrying automatically
     private static final int MAX_RETRY_ATTEMPTS = 5;
@@ -32,7 +34,7 @@ public class BillSyncRetryScheduler {
      * loop so an admin doesn't need to notice and fix these by hand
      * for transient failures (service restart, brief network blip, etc).
      */
-    @Scheduled(fixedDelayString = "${bill-sync.retry-interval-ms:300000}")
+   // @Scheduled(fixedDelayString = "${bill-sync.retry-interval-ms:300000}")
     public void retryPendingBillSyncs() {
 
         List<Payment> pending = repository.findByBillSyncStatus(BillSyncStatus.PENDING_RETRY);
@@ -65,7 +67,17 @@ public class BillSyncRetryScheduler {
         }
 
         try {
-            maintenanceClient.markBillAsPaid(payment.getMaintenanceBillId());
+            com.maintainx.payment_service.dto.MarkBillPaidRequest markReq =
+                    new com.maintainx.payment_service.dto.MarkBillPaidRequest();
+            markReq.setPaymentMode(com.maintainx.payment_service.dto.PaymentMode.ONLINE);
+            markReq.setRemarks("Retry from payment-service — payment id: " + payment.getId());
+
+            maintenanceClient.markBillAsPaid(
+                    payment.getMaintenanceBillId(),
+                    markReq,
+                    systemAdminId
+            );
+
             payment.setBillSyncStatus(BillSyncStatus.SYNCED);
 
             log.info("Bill sync retry SUCCEEDED — paymentId={}, billId={}",

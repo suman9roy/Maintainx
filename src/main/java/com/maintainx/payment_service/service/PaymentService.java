@@ -24,25 +24,32 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.maintainx.payment_service.dto.MarkBillPaidRequest;
+import com.maintainx.payment_service.dto.PaymentMode;
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
 
     @Value("${razorpay.secret}")
-    private String secret;
-
+    private String keySecret;
+    @Value("${razorpay.key}")
+    private String keyId;
+    @Value("${service.system-admin-id:00000000-0000-0000-0000-000000000000}")
+    private String systemAdminId;
     private final MaintenanceClient maintenanceClient;
-    private final RazorpayClient razorpayClient;
+
     private final PaymentRepository repository;
     private final ApplicationEventPublisher eventPublisher;
-
+    private final RazorpayClient client;
     public RazorpayOrderResponse createOrder(
             CreateOrderRequest request, String userId, String role) throws Exception {
 
+
+
         MaintenanceBillResponse bill =
                 maintenanceClient.getBill(request.getMaintenanceBillId(), userId, role);
-
+        log.info("Retrieved bill for user: {} and bill ID: {}", userId, bill.getId());
         if ("PAID".equals(bill.getPaymentStatus())) {
             // Was: RuntimeException("Bill already paid") → 500
             // Now: InvalidRequestException → 400 with a clear message
@@ -50,16 +57,16 @@ public class PaymentService {
                     "Bill " + request.getMaintenanceBillId() + " is already paid"
             );
         }
-
+        log.info("Bill retrieved successfully for user: {} and bill ID: {} and amount: {}", userId, bill.getId(), bill.getAmount());
         JSONObject orderRequest = new JSONObject();
         orderRequest.put("amount",
                 BigDecimal.valueOf(
-                        bill.getAmount().multiply(BigDecimal.valueOf(100)).longValue()));
+                        bill.getAmount().multiply(BigDecimal.valueOf(100)).longValue()));// Razorpay expects amount in paise
         orderRequest.put("currency", "INR");
         orderRequest.put("receipt", "txn_" + System.currentTimeMillis());
-
-        Order order = razorpayClient.orders.create(orderRequest);
-
+        log.info("orderRequest JSON: {}", orderRequest.toString());
+        Order order = client.orders.create(orderRequest);
+        log.info("Razorpay order created: {}", order.toString());
         Payment payment = Payment.builder()
                 .maintenanceBillId(bill.getId())
                 .flatNumber(bill.getFlatNumber())
@@ -86,7 +93,7 @@ public class PaymentService {
 
         String generatedSignature = Utils.getHash(
                 request.getRazorpayOrderId() + "|" + request.getRazorpayPaymentId(),
-                secret
+                keySecret
         );
 
         if (!generatedSignature.equals(request.getRazorpaySignature())) {
@@ -110,21 +117,31 @@ public class PaymentService {
         payment.setPaymentStatus(PaymentStatus.SUCCESS);
 
         try {
-            maintenanceClient.markBillAsPaid(payment.getMaintenanceBillId());
+            MarkBillPaidRequest markReq = new MarkBillPaidRequest();
+            markReq.setPaymentMode(PaymentMode.ONLINE);
+            markReq.setRemarks("Paid via Razorpay — payment id: " + payment.getRazorpayPaymentId());
+
+            maintenanceClient.markBillAsPaid(
+                    payment.getMaintenanceBillId(),
+                    markReq,
+                    systemAdminId
+            );
+
             payment.setBillSyncStatus(BillSyncStatus.SYNCED);
+
         } catch (Exception e) {
             log.error("Failed to mark bill {} as paid — payment {} is SUCCESS but needs retry: {}",
                     payment.getMaintenanceBillId(), payment.getId(), e.getMessage());
             payment.setBillSyncStatus(BillSyncStatus.PENDING_RETRY);
         }
-
         repository.save(payment);
 
         eventPublisher.publishEvent(new PaymentVerifiedEvent(
                 PaymentSuccessEvent.builder()
                         .maintenanceBillId(payment.getMaintenanceBillId())
                         .flatNumber(payment.getFlatNumber())
-                        .residentEmail(payment.getResidentEmail())
+                        //to-do email id of resident should be fetched from resident service need a client for that
+                        .residentEmail("suman99999roy@gmail.com")
                         .amount(payment.getAmount())
                         .paymentId(payment.getRazorpayPaymentId())
                         .build()
