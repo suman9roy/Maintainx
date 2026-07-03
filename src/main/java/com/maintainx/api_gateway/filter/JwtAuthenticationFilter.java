@@ -109,7 +109,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         // ── MAINTENANCE ───────────────────────────────────────────────────────
         if (path.startsWith("/maintenance")) {
             if (HttpMethod.POST.equals(method))        return true;
-            if (HttpMethod.PUT.equals(method))         return true;
+            if (HttpMethod.PUT.equals(method)){
+                return !path.matches("/maintenance/mark-paid/.*");
+            }
             if (HttpMethod.GET.equals(method)) {
                 if (path.equals("/maintenance"))                return true;
                 if (path.equals("/maintenance/total-collected")) return true;
