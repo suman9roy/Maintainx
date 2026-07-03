@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="PaymentServiceApplication" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="envFilePaths">
-      <option value="$PROJECT_DIR$/../NotificationService/.env" />
+      <option value="$PROJECT_DIR$/../Payment-Service/.env" />
     </option>
     <option name="MAIN_CLASS_NAME" value="com.maintainx.payment_service.PaymentServiceApplication" />
     <module name="payment-service" />
