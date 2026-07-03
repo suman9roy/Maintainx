@@ -10,11 +10,12 @@ import com.maintainx.complaint_service.exception.ResourceNotFoundException;
 import com.maintainx.complaint_service.exception.UnauthorizedAccessException;
 import com.maintainx.complaint_service.repository.ComplaintRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ComplaintService {
@@ -25,6 +26,7 @@ public class ComplaintService {
     public Complaint createComplaint(ComplaintRequest request, String userId, String role) {
 
         if (!"ADMIN".equals(role)) {
+            log.info("The Resident summary is {}",residentClient.getResidentsForUser(userId, role));
             boolean ownsIdentity = getResidents(userId, role).stream()
                     .anyMatch(resident -> request.getResidentEmail().equalsIgnoreCase(resident.getEmail())
                             && request.getFlatNumber().equalsIgnoreCase(resident.getFlatNumber()));
@@ -70,6 +72,7 @@ public class ComplaintService {
     }
 
     private List<ResidentSummary> getResidents(String userId, String role) {
+
         return residentClient.getResidentsForUser(userId, role);
     }
 
