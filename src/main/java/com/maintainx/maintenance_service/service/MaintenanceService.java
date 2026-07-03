@@ -2,6 +2,7 @@ package com.maintainx.maintenance_service.service;
 
 import com.maintainx.maintenance_service.client.ResidentClient;
 import com.maintainx.maintenance_service.dto.MaintenanceRequest;
+import com.maintainx.maintenance_service.dto.MarkBillPaidRequest;
 import com.maintainx.maintenance_service.dto.ResidentResponse;
 import com.maintainx.maintenance_service.entity.MaintenanceBill;
 import com.maintainx.maintenance_service.enums.BillStatus;
@@ -13,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -80,30 +84,31 @@ public class MaintenanceService {
     }
 
     public Double getTotalCollectedAmount() {
+
         return repository.getTotalCollectedAmount();
     }
+    public MaintenanceBill markAsPaid(
+            UUID billId,
+            MarkBillPaidRequest request,
+            UUID adminId) {
 
-    public void markAsPaid(UUID id) {
-
-        MaintenanceBill bill = repository.findById(id)
-                // Was: orElseThrow() with NO message → NoSuchElementException → 500
-                // Now: ResourceNotFoundException → 404
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Bill not found with id: " + id
-                ));
+        MaintenanceBill bill = repository.findById(billId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bill not found"));
 
         if (bill.getPaymentStatus() == BillStatus.PAID) {
-            // Prevents a double-paid situation from silently succeeding
-            throw new InvalidRequestException(
-                    "Bill " + id + " is already marked as PAID"
-            );
+            throw new IllegalStateException("Bill already paid");
         }
 
         bill.setPaymentStatus(BillStatus.PAID);
-        repository.save(bill);
+        bill.setPaymentMode(request.getPaymentMode());
+        bill.setDueDate(LocalDate.now());
+       // bill.setAmount(BigDecimal.valueOf(1200));
+        bill.setMonth(String.valueOf(LocalDate.now().getMonth()));
+        bill.setYear(LocalDate.now().getYear());
 
-        log.info("Bill {} marked as PAID for flat {}", id, bill.getFlatNumber());
+        return repository.save(bill);
     }
+
 
     // ── private ───────────────────────────────────────────────────────────────
 

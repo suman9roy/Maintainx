@@ -2,6 +2,7 @@ package com.maintainx.maintenance_service.entity;
 
 import com.maintainx.maintenance_service.enums.BillStatus;
 
+import com.maintainx.maintenance_service.enums.PaymentMode;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -36,4 +37,6 @@ public class MaintenanceBill {
 
     @Enumerated(EnumType.STRING)
     private BillStatus paymentStatus;
+    @Enumerated(EnumType.STRING)
+    private PaymentMode paymentMode;
 }
