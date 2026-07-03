@@ -16,17 +16,13 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class PaymentSuccessEvent {
-
-    private UUID maintenanceBillId;   // changed from Long to UUID
+    private UUID maintenanceBillId;
 
     private String flatNumber;
 
     private String residentEmail;
 
-    private BigDecimal amount;        // also aligned to BigDecimal — was Double,
-    // worked previously only because JSON numeric
-    // coercion is loose, but BigDecimal is correct
-    // and matches the producer side exactly
+    private BigDecimal amount;
 
     private String paymentId;
 }
