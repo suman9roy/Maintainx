@@ -2,5 +2,19 @@ spring:
   application:
     name: payment-service
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      # Use Spring's JsonSerializer to serialize events to JSON
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: payment-service-group
+      auto-offset-reset: earliest
+      # Use Spring's JsonDeserializer to deserialize JSON messages to domain objects
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
   config:
     import: optional:configserver:http://localhost:8888

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="44453f4a-057f-440f-a9a6-f778c5b64396" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/auth-service/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/com/maintainx/auth_service/AuthServiceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/com/maintainx/auth_service/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/com/maintainx/auth_service/controller/AuthController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/com/maintainx/auth_service/dto/LoginRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/com/maintainx/auth_service/dto/RegisterRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/com/maintainx/auth_service/entity/Users.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/com/maintainx/auth_service/repository/UserRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/com/maintainx/auth_service/security/JwtUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/java/com/maintainx/auth_service/service/AuthService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/main/resources/application.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/src/test/java/com/maintainx/auth_service/AuthServiceApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/src/main/java/com/maintainx/complaint_service/ComplaintServiceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/src/main/java/com/maintainx/complaint_service/controller/ComplaintController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/src/main/java/com/maintainx/complaint_service/dto/ComplaintRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/src/main/java/com/maintainx/complaint_service/dto/ComplaintStatusUpdateRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/src/main/java/com/maintainx/complaint_service/entity/Complaint.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/src/main/java/com/maintainx/complaint_service/enums/ComplaintCategory.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/src/main/java/com/maintainx/complaint_service/enums/ComplaintStatus.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/src/main/java/com/maintainx/complaint_service/repository/ComplaintRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/src/main/java/com/maintainx/complaint_service/service/ComplaintService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/src/main/resources/application.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/complaint-service/src/test/java/com/maintainx/complaint_service/ComplaintServiceApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-server/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-server/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-server/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-server/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-server/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-server/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-server/src/main/java/com/maintainx/config_server/ConfigServerApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-server/src/main/resources/application.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-server/src/test/java/com/maintainx/config_server/ConfigServerApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/discovery-server/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/discovery-server/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/discovery-server/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/discovery-server/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/discovery-server/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/discovery-server/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/discovery-server/src/main/java/com/maintainx/discovery_server/DiscoveryServerApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/discovery-server/src/main/resources/application.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/discovery-server/src/test/java/com/maintainx/discovery_server/DiscoveryServerApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/src/main/java/com/maintainx/expense_service/ExpenseServiceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/src/main/java/com/maintainx/expense_service/client/MaintenanceClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/src/main/java/com/maintainx/expense_service/controller/ExpenseController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/src/main/java/com/maintainx/expense_service/dto/ExpenseRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/src/main/java/com/maintainx/expense_service/dto/FundSummaryResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/src/main/java/com/maintainx/expense_service/entity/Expense.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/src/main/java/com/maintainx/expense_service/enums/ExpenseCategory.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/src/main/java/com/maintainx/expense_service/repository/ExpenseRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/src/main/java/com/maintainx/expense_service/service/ExpenseService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/src/main/resources/application.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/expense-service/src/test/java/com/maintainx/expense_service/ExpenseServiceApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/src/main/java/com/maintainx/maintenance_service/MaintenanceServiceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/src/main/java/com/maintainx/maintenance_service/controller/MaintenanceController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/src/main/java/com/maintainx/maintenance_service/dto/MaintenanceRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/src/main/java/com/maintainx/maintenance_service/entity/MaintenanceBill.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/src/main/java/com/maintainx/maintenance_service/repository/MaintenanceRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/src/main/java/com/maintainx/maintenance_service/service/MaintenanceService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/src/main/resources/application.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance-service/src/test/java/com/maintainx/maintenance_service/MaintenanceServiceApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/src/main/java/com/maintainx/notice_service/NoticeServiceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/src/main/java/com/maintainx/notice_service/controller/NoticeController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/src/main/java/com/maintainx/notice_service/dto/NoticeRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/src/main/java/com/maintainx/notice_service/entity/Notice.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/src/main/java/com/maintainx/notice_service/enums/NoticeType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/src/main/java/com/maintainx/notice_service/repository/NoticeRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/src/main/java/com/maintainx/notice_service/service/NoticeService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/src/main/resources/application.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notice-service/src/test/java/com/maintainx/notice_service/NoticeServiceApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/maintainx/payment_service/PaymentServiceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/maintainx/payment_service/client/MaintenanceClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/maintainx/payment_service/config/RazorpayConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/maintainx/payment_service/controller/PaymentController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/maintainx/payment_service/dto/CreateOrderRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/maintainx/payment_service/dto/MaintenanceBillResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/maintainx/payment_service/dto/PaymentRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/maintainx/payment_service/dto/PaymentVerificationRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/maintainx/payment_service/dto/RazorpayOrderResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/maintainx/payment_service/entity/Payment.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/maintainx/payment_service/enums/PaymentStatus.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/maintainx/payment_service/repository/PaymentRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/maintainx/payment_service/service/PaymentService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/resources/application.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/test/java/com/maintainx/payment_service/PaymentServiceApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/src/main/java/com/maintainx/resident_service/ResidentServiceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/src/main/java/com/maintainx/resident_service/controller/ResidentController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/src/main/java/com/maintainx/resident_service/dto/ResidentRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/src/main/java/com/maintainx/resident_service/entity/Resident.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/src/main/java/com/maintainx/resident_service/repository/ResidentRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/src/main/java/com/maintainx/resident_service/service/ResidentService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/src/main/resources/application.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resident-service/src/test/java/com/maintainx/resident_service/ResidentServiceApplicationTests.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_D:/maintainx_dev" value="3GAOQSZLxdLVQXDksUWF0Zz8Zhp" />
+    </persistenceIdMap>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;suman9roy&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/suman9roy/Maintainx.git&quot;,
+    &quot;accountId&quot;: &quot;01b1e554-b6a6-45a4-bfb9-9c8288c28fad&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="3GAOQSZLxdLVQXDksUWF0Zz8Zhp" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "copilot.chat.legacySessionMetadata.migrated": "true",
+    "git-widget-placeholder": "dev",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/maintainx_dev",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="maintainx_dev" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="maintainx_dev" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="44453f4a-057f-440f-a9a6-f778c5b64396" name="Changes" comment="" />
+      <created>1783410890997</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1783410890997</updated>
+    </task>
+    <servers />
+  </component>
+</project>
