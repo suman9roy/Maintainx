@@ -1,0 +1,27 @@
+notification-service:
+
+  build: ./notification-service
+
+  container_name:
+    notification-service
+
+  restart: always
+
+  depends_on:
+    - kafka
+    - config-server
+    - eureka-server
+
+  environment:
+
+    MAIL_USERNAME:
+      yourgmail@gmail.com
+
+    MAIL_PASSWORD:
+      your_app_password
+
+  ports:
+    - "8088:8088"
+
+  networks:
+    - maintainx-network
