@@ -1,4 +1,4 @@
-package com.maintainx.NotificationService.service;
+package com.maintainx.notification_service.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,7 +70,7 @@ public class EmailService {
     private void send(String to, String subject, String text) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(to);
+            message.setTo(to.split(","));
             message.setSubject(subject);
             message.setText(text);
             mailSender.send(message);

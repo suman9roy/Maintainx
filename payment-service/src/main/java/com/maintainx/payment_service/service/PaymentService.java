@@ -1,6 +1,7 @@
 package com.maintainx.payment_service.service;
 
 import com.maintainx.payment_service.client.MaintenanceClient;
+import com.maintainx.payment_service.client.ResidentClient;
 import com.maintainx.payment_service.dto.*;
 import com.maintainx.payment_service.entity.Payment;
 import com.maintainx.payment_service.enums.BillSyncStatus;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.maintainx.payment_service.dto.MarkBillPaidRequest;
 import com.maintainx.payment_service.dto.PaymentMode;
@@ -38,14 +40,12 @@ public class PaymentService {
     @Value("${service.system-admin-id:00000000-0000-0000-0000-000000000000}")
     private String systemAdminId;
     private final MaintenanceClient maintenanceClient;
-
+    private final ResidentClient residentClient;
     private final PaymentRepository repository;
     private final ApplicationEventPublisher eventPublisher;
     private final RazorpayClient client;
     public RazorpayOrderResponse createOrder(
             CreateOrderRequest request, String userId, String role) throws Exception {
-
-
 
         MaintenanceBillResponse bill =
                 maintenanceClient.getBill(request.getMaintenanceBillId(), userId, role);
@@ -58,6 +58,17 @@ public class PaymentService {
             );
         }
         log.info("Bill retrieved successfully for user: {} and bill ID: {} and amount: {}", userId, bill.getId(), bill.getAmount());
+       List<ResidentResponse> residentlist = residentClient.getResidentsByFlatNumber(bill.getFlatNumber());
+        if (residentlist == null || residentlist.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No resident found for flat number: " + bill.getFlatNumber()
+            );
+        }
+        String residentEmails = residentlist.stream()
+                .map(ResidentResponse::getEmail)
+                .reduce((email1, email2) -> email1 + ", " + email2)
+                .orElseThrow(() -> new ResourceNotFoundException("No email found"));
+        log.info("Resident emails for flat number {}: {}", bill.getFlatNumber(), residentEmails);
         JSONObject orderRequest = new JSONObject();
         orderRequest.put("amount",
                 BigDecimal.valueOf(
@@ -74,6 +85,7 @@ public class PaymentService {
                 .razorpayOrderId(order.get("id"))
                 .paymentStatus(PaymentStatus.CREATED)
                 .paymentDate(LocalDateTime.now())
+                .residentEmail(residentEmails)
                 .build();
 
         repository.save(payment);
@@ -141,7 +153,8 @@ public class PaymentService {
                         .maintenanceBillId(payment.getMaintenanceBillId())
                         .flatNumber(payment.getFlatNumber())
                         //to-do email id of resident should be fetched from resident service need a client for that
-                        .residentEmail("suman99999roy@gmail.com")
+
+                        .residentEmail(payment.getResidentEmail())
                         .amount(payment.getAmount())
                         .paymentId(payment.getRazorpayPaymentId())
                         .build()

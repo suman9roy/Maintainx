@@ -1,4 +1,4 @@
-package com.maintainx.NotificationService.config;
+package com.maintainx.notification_service.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;

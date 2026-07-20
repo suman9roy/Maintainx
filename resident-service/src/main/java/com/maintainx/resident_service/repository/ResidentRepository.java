@@ -19,4 +19,8 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
             String flatNumber,
             com.maintainx.resident_service.enums.ResidentType residentType
     );
+
+    List<Resident> findAllByFlatNumber(String flatNumber);
+
+    boolean existsByFlatNumber(String flatNumber);
 }

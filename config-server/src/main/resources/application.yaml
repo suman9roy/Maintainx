@@ -3,18 +3,16 @@ server:
 
 spring:
   application:
-    name: CONFIG-SERVER
-
+    name: config-server
   profiles:
     active: native
-
   cloud:
     config:
       server:
         native:
-          search-locations: file:///C:/maintainx-config-repo
+          search-locations: ${CONFIG_NATIVE_LOCATION:file:///C:/maintainx-config-repo}
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}

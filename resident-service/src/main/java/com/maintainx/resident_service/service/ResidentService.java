@@ -3,6 +3,7 @@ package com.maintainx.resident_service.service;
 import com.maintainx.resident_service.entity.Resident;
 import com.maintainx.resident_service.entity.ResidentJoinRequest;
 import com.maintainx.resident_service.enums.JoinRequestStatus;
+import com.maintainx.resident_service.exception.InvalidRequestException;
 import com.maintainx.resident_service.exception.ResourceNotFoundException;
 import com.maintainx.resident_service.exception.UnauthorizedAccessException;
 import com.maintainx.resident_service.repository.ResidentJoinRequestRepository;
@@ -92,5 +93,15 @@ public class ResidentService {
             throw new ResourceNotFoundException("Resident not found with id: " + id);
         }
         residentRepository.deleteById(id);
+    }
+
+    public List<Resident> getResidentsByFlatNumber(String flatNumber) {
+        if(flatNumber == null || flatNumber.isEmpty()) {
+            throw new InvalidRequestException("Flat number cannot be null or empty");
+        }
+        if(!residentRepository.existsByFlatNumber(flatNumber)) {
+            throw new ResourceNotFoundException("No residents found for flat number: " + flatNumber);
+        }
+        return residentRepository.findAllByFlatNumber(flatNumber);
     }
 }

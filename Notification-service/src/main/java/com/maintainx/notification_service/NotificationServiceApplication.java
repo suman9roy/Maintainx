@@ -1,4 +1,4 @@
-package com.maintainx.NotificationService;
+package com.maintainx.notification_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

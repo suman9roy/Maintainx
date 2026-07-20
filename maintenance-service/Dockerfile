@@ -7,15 +7,15 @@ WORKDIR /app
 
 # Root parent POM + this service module files
 COPY pom.xml .
-COPY notification-service/.mvn notification-service/.mvn
-COPY notification-service/mvnw notification-service/mvnw
-COPY notification-service/pom.xml notification-service/pom.xml
+COPY maintenance-service/.mvn maintenance-service/.mvn
+COPY maintenance-service/mvnw maintenance-service/mvnw
+COPY maintenance-service/pom.xml maintenance-service/pom.xml
 
-WORKDIR /app/notification-service
+WORKDIR /app/maintenance-service
 RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline
 
-COPY notification-service/src src
+COPY maintenance-service/src src
 
 RUN ./mvnw clean package -DskipTests
 
@@ -26,8 +26,8 @@ FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
-COPY --from=builder /app/notification-service/target/*.jar app.jar
+COPY --from=builder /app/maintenance-service/target/*.jar app.jar
 
-EXPOSE 8088
+EXPOSE 8083
 
 ENTRYPOINT ["java","-jar","app.jar"]

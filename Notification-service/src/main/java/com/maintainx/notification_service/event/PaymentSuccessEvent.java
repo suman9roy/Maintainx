@@ -1,4 +1,4 @@
-package com.maintainx.NotificationService.event;
+package com.maintainx.notification_service.event;
 
 import lombok.*;
 

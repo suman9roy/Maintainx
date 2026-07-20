@@ -57,4 +57,9 @@ public class ResidentController {
         service.deleteResident(id);
         return "Resident Deleted Successfully";
     }
+    //need amethod to get all resident by flat number
+    @GetMapping("/byFlatNumber/{flatNumber}")
+    public List<Resident> getResidentsByFlatNumber(@PathVariable String flatNumber) {
+        return service.getResidentsByFlatNumber(flatNumber);
+    }
 }

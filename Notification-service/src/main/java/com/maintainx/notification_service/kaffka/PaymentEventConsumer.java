@@ -1,9 +1,9 @@
-package com.maintainx.NotificationService.kaffka;
+package com.maintainx.notification_service.kaffka;
 
 
 
-import com.maintainx.NotificationService.event.PaymentSuccessEvent;
-import com.maintainx.NotificationService.service.EmailService;
+import com.maintainx.notification_service.event.PaymentSuccessEvent;
+import com.maintainx.notification_service.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.fasterxml.jackson.databind.ObjectMapper;

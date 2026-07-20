@@ -1,17 +1,5 @@
 spring:
   application:
     name: notification-service
-
-  kafka:
-    consumer:
-      bootstrap-servers: localhost:9092
-      group-id: notification-group
-      auto-offset-reset: earliest
-      # Use Spring's JsonDeserializer to deserialize JSON messages to domain objects
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
-
   config:
-    import:
-      optional:configserver:http://localhost:8888
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
