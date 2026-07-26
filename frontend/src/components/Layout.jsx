@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 // Resident sidebar links
 const residentLinks = [
   { to: '/dashboard',     label: '🏠 Dashboard' },
-  { to: '/my-bills',      label: '💰 My Bill' },
+  { to: '/my-bills',      label: '💰 My Bills' },
   { to: '/join-request',  label: '📋 Join Request' },
   { to: '/my-requests',   label: '📬 My Requests' },
   { to: '/my-complaints', label: '📢 Complaints' },
