@@ -69,7 +69,8 @@ public class PaymentEventConsumer {
                 event.getResidentEmail(),
                 event.getAmount(),
 
-                event.getFlatNumber()
+                event.getFlatNumber(),
+                event.getApartmentId().toString()
         );
     }
 }

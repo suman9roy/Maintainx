@@ -5,7 +5,6 @@ import com.maintainx.resident_service.dto.JoinRequestDto;
 import com.maintainx.resident_service.dto.RejectRequestDto;
 import com.maintainx.resident_service.entity.ResidentJoinRequest;
 import com.maintainx.resident_service.enums.JoinRequestStatus;
-import com.maintainx.resident_service.exception.ResourceNotFoundException;
 import com.maintainx.resident_service.service.JoinRequestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +33,8 @@ public class JoinRequestController {
                     required = false)             MultipartFile document,
             @RequestHeader("X-User-Id")                String userId) throws IOException {
 
-        // Manually validate after deserializing the JSON part —
-        // @Valid doesn't apply to @RequestPart String, so we validate
-        // the parsed DTO using javax.validation via the service.
+        // apartmentId comes from the DTO body here, chosen by the applicant —
+        // NOT from a header, since this user has no apartment association yet.
         JoinRequestDto dto = objectMapper.readValue(dataJson, JoinRequestDto.class);
 
         ResidentJoinRequest saved = service.submitRequest(
@@ -52,19 +50,26 @@ public class JoinRequestController {
         return service.getMyRequests(UUID.fromString(userId));
     }
 
+    /**
+     * ADMIN only — scoped to the calling admin's own apartment.
+     */
     @GetMapping
     public List<ResidentJoinRequest> getAllRequestsByStatus(
+            @RequestHeader("X-Apartment-Id") String apartmentId,
             @RequestParam(required = false) JoinRequestStatus status) {
 
-        return service.getAllRequestsByStatus(status);
+        return service.getAllRequestsByStatus(UUID.fromString(apartmentId), status);
     }
 
     @GetMapping("/{id}/document")
-    public ResponseEntity<byte[]> getDocument(@PathVariable Long id) throws IOException {
+    public ResponseEntity<byte[]> getDocument(
+            @PathVariable Long id,
+            @RequestHeader("X-Apartment-Id") String apartmentId) throws IOException {
 
+        UUID adminApartmentId = UUID.fromString(apartmentId);
         ResidentJoinRequest joinRequest = service.getRequestById(id);
 
-        byte[] pdf = service.getDocument(id);
+        byte[] pdf = service.getDocument(id, adminApartmentId);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
@@ -74,19 +79,19 @@ public class JoinRequestController {
     }
 
     @PutMapping("/{id}/approve")
-    public ResidentJoinRequest approve(@PathVariable Long id) {
-        return service.approveRequest(id);
+    public ResidentJoinRequest approve(
+            @PathVariable Long id,
+            @RequestHeader("X-Apartment-Id") String apartmentId) {
+
+        return service.approveRequest(id, UUID.fromString(apartmentId));
     }
 
-    /**
-     * @Valid applied to RejectRequestDto ensures reason is never blank —
-     * a resident deserves to know why their request was rejected.
-     */
     @PutMapping("/{id}/reject")
     public ResidentJoinRequest reject(
             @PathVariable Long id,
+            @RequestHeader("X-Apartment-Id") String apartmentId,
             @Valid @RequestBody RejectRequestDto dto) {
 
-        return service.rejectRequest(id, dto);
+        return service.rejectRequest(id, UUID.fromString(apartmentId), dto);
     }
 }

@@ -16,7 +16,8 @@ public class ExpenseRequest {
     @NotBlank(message = "Title is required")
     @Size(max = 150, message = "Title must be under 150 characters")
     private String title;
-
+    @NotBlank(message = "Apartment ID is required")
+    private String apartmentId;
     @NotNull(message = "Category is required")
     private ExpenseCategory category;
 

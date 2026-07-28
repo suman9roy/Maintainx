@@ -6,6 +6,7 @@ import com.maintainx.payment_service.enums.BillSyncStatus;
 import com.maintainx.payment_service.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,7 @@ public class BillSyncRetryScheduler {
 
     private final PaymentRepository repository;
     private final MaintenanceClient maintenanceClient;
-    @org.springframework.beans.factory.annotation.Value("${service.system-admin-id:00000000-0000-0000-0000-000000000000}")
+    @Value("${service.system-admin-id:00000000-0000-0000-0000-000000000000}")
     private String systemAdminId;
 
     // After this many failed attempts, stop retrying automatically
@@ -75,7 +76,8 @@ public class BillSyncRetryScheduler {
             maintenanceClient.markBillAsPaid(
                     payment.getMaintenanceBillId(),
                     markReq,
-                    systemAdminId
+                    systemAdminId,
+                    payment.getApartmentId().toString()
             );
 
             payment.setBillSyncStatus(BillSyncStatus.SYNCED);

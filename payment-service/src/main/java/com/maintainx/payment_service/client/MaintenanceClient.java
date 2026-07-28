@@ -26,7 +26,9 @@ public interface MaintenanceClient {
     MaintenanceBillResponse getBill(
             @PathVariable UUID id,
             @RequestHeader("X-User-Id")   String userId,
-            @RequestHeader("X-User-Role") String role);
+            @RequestHeader("X-User-Role") String role,
+            @RequestHeader("X-Apartment-Id") String apartmentId
+    );
 
     /**
      * No identity headers needed here — this is only called internally
@@ -37,5 +39,6 @@ public interface MaintenanceClient {
     void markBillAsPaid(
             @PathVariable UUID id,
             @RequestBody MarkBillPaidRequest request,
-            @RequestHeader("X-User-Id") String adminId);
+            @RequestHeader("X-User-Id") String adminId,
+            @RequestHeader("X-Apartment-Id") String apartmentId);
 }

@@ -25,7 +25,7 @@ public class Payment {
 
     // Changed from Long to UUID — must match MaintenanceBill.id exactly
     private UUID maintenanceBillId;
-
+    private UUID apartmentId;
     private String residentEmail;
     private String flatNumber;
     private BigDecimal amount;

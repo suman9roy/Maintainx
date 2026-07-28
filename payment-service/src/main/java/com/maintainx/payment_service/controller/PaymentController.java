@@ -8,6 +8,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequestMapping("/payments")
@@ -20,9 +23,11 @@ public class PaymentController {
     public RazorpayOrderResponse createOrder(
             @Valid @RequestBody CreateOrderRequest request,
             @RequestHeader("X-User-Id")   String userId,
-            @RequestHeader("X-User-Role") String role) throws Exception {
+            @RequestHeader("X-User-Role") String role,
+            @RequestHeader("X-Apartment-Id") String apartmentId
+            ) throws Exception {
         log.info("Creating order for user: {}", userId);
-        return service.createOrder(request, userId, role);
+        return service.createOrder(request, userId, role, UUID.fromString(apartmentId));
     }
 
     // @Valid ensures none of the three Razorpay fields are blank
@@ -30,8 +35,9 @@ public class PaymentController {
     // that would otherwise appear as a confusing 500 error
     @PostMapping("/verify")
     public String verifyPayment(
-            @Valid @RequestBody PaymentVerificationRequest request) throws Exception {
+            @Valid @RequestBody PaymentVerificationRequest request,
+            @RequestHeader("X-Apartment-Id") String apartmentId) throws Exception {
 
-        return service.verifyPayment(request);
+        return service.verifyPayment(request, UUID.fromString(apartmentId));
     }
 }

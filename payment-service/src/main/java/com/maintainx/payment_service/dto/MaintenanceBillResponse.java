@@ -9,7 +9,7 @@ import java.util.UUID;
 public class MaintenanceBillResponse {
 
     private UUID id;
-
+    private UUID apartmentId;
     private String flatNumber;
 
     private BigDecimal amount;

@@ -28,7 +28,13 @@ public class MaintenanceService {
     private final MaintenanceRepository repository;
     private final ResidentClient residentClient;
 
-    public MaintenanceBill generateBill(MaintenanceRequest request) {
+    public MaintenanceBill generateBill(MaintenanceRequest request, UUID apartmentId) {
+        // Validate that the flat number belongs to an approved resident in the apartment
+        List<ResidentResponse> residents = residentClient.getResidentsForApartment(apartmentId.toString());
+
+        if (residents.stream().noneMatch(resident -> resident.getFlatNumber().equals(request.getFlatNumber()))) {
+            throw new InvalidRequestException("Flat number does not belong to an approved resident in the apartment");
+        }
 
         MaintenanceBill bill = MaintenanceBill.builder()
                 .flatNumber(request.getFlatNumber())
@@ -37,31 +43,43 @@ public class MaintenanceService {
                 .year(request.getYear())
                 .dueDate(request.getDueDate())
                 .paymentStatus(BillStatus.PENDING)
+                .apartmentId(apartmentId)
                 .build();
 
         return repository.save(bill);
     }
 
-    public List<MaintenanceBill> getAllBills() {
-        return repository.findAll();
+    public List<MaintenanceBill> getAllBills(UUID apartmentId) {
+        return repository.findAllByApartmentId(apartmentId);
     }
 
     public List<MaintenanceBill> getBillsByFlat(
-            String flatNumber, String userId, String role) {
+            String flatNumber, String userId, String role, UUID apartmentId) {
 
         if (!"ADMIN".equals(role)) {
-            if (!requireFlatAccess(flatNumber, userId, role)) {
+            if (!requireFlatAccess(flatNumber, userId, role, apartmentId)) {
                 // Was: throw new RuntimeException(...) → fell through to 500
                 // Now: UnauthorizedAccessException → 403 with a clear message
                 throw new UnauthorizedAccessException(
                         "You are not an approved resident of flat: " + flatNumber
                 );
             }
+        }else{
+            // For ADMIN, ensure the flat belongs to the same apartment
+            List<ResidentResponse> residents = residentClient.getResidentsForApartment(apartmentId.toString());
+            boolean flatBelongsToApartment = residents.stream()
+                    .anyMatch(resident -> resident.getFlatNumber().equals(flatNumber));
+            if (!flatBelongsToApartment) {
+                throw new UnauthorizedAccessException(
+                        "Flat number " + flatNumber + " does not belong to your apartment"
+                );
+            }
         }
-        return repository.findByFlatNumber(flatNumber);
+
+        return repository.findByFlatNumberAndApartmentId(flatNumber, apartmentId);
     }
 
-    public MaintenanceBill getBill(UUID id, String userId, String role) {
+    public MaintenanceBill getBill(UUID id, String userId, String role, UUID apartmentId) {
 
         MaintenanceBill bill = repository.findById(id)
                 // Was: throw new RuntimeException("Bill not found") → 500
@@ -71,10 +89,16 @@ public class MaintenanceService {
                 ));
 
         if ("ADMIN".equals(role)) {
+            // Admins can only access bills for their own apartment
+            if (!bill.getApartmentId().equals(apartmentId)) {
+                throw new UnauthorizedAccessException(
+                        "Access denied — this bill does not belong to your apartment"
+                );
+            }
             return bill;
         }
 
-        if (!requireFlatAccess(bill.getFlatNumber(), userId, role)) {
+        if (!requireFlatAccess(bill.getFlatNumber(), userId, role, apartmentId)) {
             throw new UnauthorizedAccessException(
                     "Access denied — this bill does not belong to your flat"
             );
@@ -83,17 +107,24 @@ public class MaintenanceService {
         return bill;
     }
 
-    public Double getTotalCollectedAmount() {
+    public Double getTotalCollectedAmount(UUID apartmentId) {
 
-        return repository.getTotalCollectedAmount();
+        return repository.getTotalCollectedAmount(apartmentId);
     }
     public MaintenanceBill markAsPaid(
             UUID billId,
             MarkBillPaidRequest request,
-            UUID adminId) {
+            UUID adminId,
+            UUID apartmentId) {
 
         MaintenanceBill bill = repository.findById(billId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill not found"));
+        // Admins can only mark bills as paid for their own apartment
+        if (!bill.getApartmentId().equals(apartmentId)) {
+            throw new UnauthorizedAccessException(
+                    "You do not have permission to mark this bill as paid"
+            );
+        }
 
         if (bill.getPaymentStatus() == BillStatus.PAID) {
             throw new IllegalStateException("Bill already paid");
@@ -113,7 +144,7 @@ public class MaintenanceService {
     // ── private ───────────────────────────────────────────────────────────────
 
     private boolean requireFlatAccess(
-            String flatNumber, String userId, String role) {
+            String flatNumber, String userId, String role, UUID apartmentId) {
 
         List<ResidentResponse> residents =
                 residentClient.getResidentsForUser(userId, role);
@@ -128,6 +159,6 @@ public class MaintenanceService {
         }
 
         return residents.stream()
-                .anyMatch(r -> r.getFlatNumber().equals(flatNumber));
+                .anyMatch(r -> r.getFlatNumber().equals(flatNumber) && r.getApartmentId().equals(apartmentId.toString()));
     }
 }

@@ -22,12 +22,16 @@ public class Resident {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * Links to Users.id in auth-service.
-     * NOT unique — one user can own/rent multiple flats.
-     */
     @Column(name = "user_id", nullable = false)
     private UUID userId;
+
+    /**
+     * Which apartment this resident record belongs to. Set from the
+     * approved join request's apartmentId — never trust a client-supplied
+     * value for this field.
+     */
+    @Column(name = "apartment_id", nullable = false)
+    private UUID apartmentId;
 
     private String fullName;
 
@@ -40,9 +44,8 @@ public class Resident {
     private Integer floorNumber;
 
     @Enumerated(EnumType.STRING)
-    private ResidentType residentType;      // OWNER | TENANT | FAMILY_MEMBER
+    private ResidentType residentType;
 
-    /** Reference back to the join request that created this record */
     @Column(name = "join_request_id")
     private Long joinRequestId;
 }

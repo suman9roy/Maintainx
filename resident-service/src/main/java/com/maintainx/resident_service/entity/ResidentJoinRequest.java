@@ -28,6 +28,15 @@ public class ResidentJoinRequest {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
+    /**
+     * Which apartment this request is for. Chosen by the applicant from
+     * the public apartment list (auth-service GET /apartments/public) —
+     * required because at the time of applying, the user's own JWT/Users
+     * record has no apartmentId yet.
+     */
+    @Column(name = "apartment_id", nullable = false)
+    private UUID apartmentId;
+
     @Column(nullable = false)
     private String fullName;
     @Column(nullable = false,unique = true)
@@ -53,19 +62,9 @@ public class ResidentJoinRequest {
 
     // ── Document ─────────────────────────────────────────────────────────────
 
-    /**
-     * Original filename shown to admin (e.g. "flat-deed-B204.pdf").
-     * Null for FAMILY_MEMBER — no document required.
-     */
     @Column(name = "document_name")
     private String documentName;
 
-    /**
-     * Path on disk where the PDF is stored.
-     * Format: {upload-dir}/{userId}/{uuid}-{originalFilename}
-     *
-     * PRODUCTION: replace with S3 object key.
-     */
     @Column(name = "document_path")
     private String documentPath;
 
@@ -76,11 +75,11 @@ public class ResidentJoinRequest {
     private JoinRequestStatus status;
 
     @Column(name = "rejection_reason")
-    private String rejectionReason;         // set on REJECTED
+    private String rejectionReason;
 
     @Column(name = "requested_at", nullable = false)
     private LocalDateTime requestedAt;
 
     @Column(name = "reviewed_at")
-    private LocalDateTime reviewedAt;       // set when admin acts
+    private LocalDateTime reviewedAt;
 }

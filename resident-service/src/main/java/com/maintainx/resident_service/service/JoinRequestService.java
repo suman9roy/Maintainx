@@ -9,11 +9,11 @@ import com.maintainx.resident_service.enums.ResidentType;
 import com.maintainx.resident_service.exception.DuplicateResourceException;
 import com.maintainx.resident_service.exception.InvalidRequestException;
 import com.maintainx.resident_service.exception.ResourceNotFoundException;
+import com.maintainx.resident_service.exception.UnauthorizedAccessException;
 import com.maintainx.resident_service.kafka.JoinRequestEventProducer;
 import com.maintainx.resident_service.kafka.JoinRequestStatusEvent;
 import com.maintainx.resident_service.repository.ResidentJoinRequestRepository;
 import com.maintainx.resident_service.repository.ResidentRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,15 +45,13 @@ public class JoinRequestService {
     public ResidentJoinRequest submitRequest(
             UUID userId, JoinRequestDto dto, MultipartFile document) throws IOException {
 
-        // Duplicate pending request check → 409
-        if (joinRequestRepository.existsByUserIdAndFlatNumberAndStatus(
-                userId, dto.getFlatNumber(), JoinRequestStatus.PENDING)) {
+        if (joinRequestRepository.existsByUserIdAndFlatNumberAndApartmentIdAndStatus(
+                userId, dto.getFlatNumber(), dto.getApartmentId(), JoinRequestStatus.PENDING)) {
             throw new DuplicateResourceException(
                     "You already have a pending request for flat: " + dto.getFlatNumber()
             );
         }
 
-        // OWNER/TENANT must upload a document → 400
         if (dto.getResidentType() != ResidentType.FAMILY_MEMBER
                 && (document == null || document.isEmpty())) {
             throw new InvalidRequestException(
@@ -67,14 +65,12 @@ public class JoinRequestService {
 
         if (document != null && !document.isEmpty()) {
 
-            // Wrong file type → 400
             if (!"application/pdf".equals(document.getContentType())) {
                 throw new InvalidRequestException(
                         "Only PDF files are accepted. Received: " + document.getContentType()
                 );
             }
 
-            // File too large → 400 (also caught at servlet level by MaxUploadSizeExceededException)
             if (document.getSize() > 5 * 1024 * 1024) {
                 throw new InvalidRequestException("Document must be under 5MB.");
             }
@@ -85,6 +81,7 @@ public class JoinRequestService {
 
         ResidentJoinRequest request = ResidentJoinRequest.builder()
                 .userId(userId)
+                .apartmentId(dto.getApartmentId())
                 .fullName(dto.getFullName())
                 .phoneNumber(dto.getPhoneNumber())
                 .residentEmail(dto.getResidentEmail())
@@ -107,15 +104,13 @@ public class JoinRequestService {
         return joinRequestRepository.findByUserId(userId);
     }
 
-    // ── ADMIN: list all ───────────────────────────────────────────────────────
+    // ── ADMIN: list all (scoped to their own apartment) ───────────────────────
 
-    public List<ResidentJoinRequest> getAllRequestsByStatus(JoinRequestStatus status) {
-        // Fixed NPE: status was null when no ?status= param given,
-        // and the old code called status.equals() on a null receiver.
+    public List<ResidentJoinRequest> getAllRequestsByStatus(UUID adminApartmentId, JoinRequestStatus status) {
         if (status == null || status == JoinRequestStatus.ALL) {
-            return joinRequestRepository.findAll();
+            return joinRequestRepository.findByApartmentId(adminApartmentId);
         }
-        return joinRequestRepository.findByStatus(status);
+        return joinRequestRepository.findByApartmentIdAndStatus(adminApartmentId, status);
     }
 
     // ── ADMIN: fetch single request (used by getDocument) ────────────────────
@@ -127,11 +122,27 @@ public class JoinRequestService {
                 ));
     }
 
+    /**
+     * Every admin action on a specific request must check the request
+     * belongs to THAT admin's apartment — otherwise an admin from
+     * apartment A could approve/reject/view documents for apartment B
+     * just by guessing a request id.
+     */
+    private ResidentJoinRequest getRequestForAdmin(Long id, UUID adminApartmentId) {
+        ResidentJoinRequest request = getRequestById(id);
+        if (!request.getApartmentId().equals(adminApartmentId)) {
+            throw new UnauthorizedAccessException(
+                    "This join request does not belong to your apartment"
+            );
+        }
+        return request;
+    }
+
     // ── ADMIN: download document ──────────────────────────────────────────────
 
-    public byte[] getDocument(Long requestId) throws IOException {
+    public byte[] getDocument(Long requestId, UUID adminApartmentId) throws IOException {
 
-        ResidentJoinRequest joinRequest = getRequestById(requestId);
+        ResidentJoinRequest joinRequest = getRequestForAdmin(requestId, adminApartmentId);
 
         if (joinRequest.getDocumentPath() == null) {
             throw new InvalidRequestException(
@@ -151,9 +162,9 @@ public class JoinRequestService {
 
     // ── ADMIN: approve ────────────────────────────────────────────────────────
 
-    public ResidentJoinRequest approveRequest(Long requestId) {
+    public ResidentJoinRequest approveRequest(Long requestId, UUID adminApartmentId) {
 
-        ResidentJoinRequest joinRequest = getRequestById(requestId);
+        ResidentJoinRequest joinRequest = getRequestForAdmin(requestId, adminApartmentId);
 
         if (joinRequest.getStatus() != JoinRequestStatus.PENDING) {
             throw new InvalidRequestException(
@@ -162,8 +173,8 @@ public class JoinRequestService {
         }
 
         if (joinRequest.getResidentType() != ResidentType.FAMILY_MEMBER) {
-            boolean alreadyExists = residentRepository.existsByFlatNumberAndResidentType(
-                    joinRequest.getFlatNumber(), joinRequest.getResidentType()
+            boolean alreadyExists = residentRepository.existsByFlatNumberAndResidentTypeAndApartmentId(
+                    joinRequest.getFlatNumber(), joinRequest.getResidentType(), joinRequest.getApartmentId()
             );
             if (alreadyExists) {
                 throw new DuplicateResourceException(
@@ -176,6 +187,7 @@ public class JoinRequestService {
 
         Resident resident = Resident.builder()
                 .userId(joinRequest.getUserId())
+                .apartmentId(joinRequest.getApartmentId())
                 .fullName(joinRequest.getFullName())
                 .phoneNumber(joinRequest.getPhoneNumber())
                 .email(joinRequest.getResidentEmail())
@@ -202,17 +214,17 @@ public class JoinRequestService {
                         .build()
         );
 
-        log.info("Join request {} approved — resident record created for flat {}",
-                requestId, joinRequest.getFlatNumber());
+        log.info("Join request {} approved — resident record created for flat {} in apartment {}",
+                requestId, joinRequest.getFlatNumber(), joinRequest.getApartmentId());
 
         return joinRequest;
     }
 
     // ── ADMIN: reject ─────────────────────────────────────────────────────────
 
-    public ResidentJoinRequest rejectRequest(Long requestId, RejectRequestDto dto) {
+    public ResidentJoinRequest rejectRequest(Long requestId, UUID adminApartmentId, RejectRequestDto dto) {
 
-        ResidentJoinRequest joinRequest = getRequestById(requestId);
+        ResidentJoinRequest joinRequest = getRequestForAdmin(requestId, adminApartmentId);
 
         if (joinRequest.getStatus() != JoinRequestStatus.PENDING) {
             throw new InvalidRequestException(

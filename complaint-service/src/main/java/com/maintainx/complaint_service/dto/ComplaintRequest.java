@@ -13,7 +13,8 @@ public class ComplaintRequest {
     @NotBlank(message = "Resident email is required")
     @Email(message = "Must be a valid email address")
     private String residentEmail;
-
+    @NotBlank(message = "Apartment ID is required")
+    private String apartmentId;
     @NotBlank(message = "Flat number is required")
     private String flatNumber;
 

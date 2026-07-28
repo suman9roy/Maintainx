@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +20,11 @@ public class ExpenseService {
     private final MaintenanceClient maintenanceClient;
 
     public Expense addExpense(
-            ExpenseRequest request) {
+            ExpenseRequest request, UUID apartmentId) {
+        // Validate that the apartmentId in the request header matches the apartmentId in the request body
+        if (!apartmentId.toString().equals(request.getApartmentId())) {
+            throw new IllegalArgumentException("Apartment ID in request header does not match the apartment ID in the request body");
+        }
 
         Expense expense = Expense.builder()
                 .title(request.getTitle())
@@ -27,31 +32,32 @@ public class ExpenseService {
                 .amount(request.getAmount())
                 .description(request.getDescription())
                 .expenseDate(request.getExpenseDate())
+                .apartmentId(apartmentId)
                 .build();
 
         return repository.save(expense);
     }
 
-    public List<Expense> getAllExpenses() {
+    public List<Expense> getAllExpenses(UUID apartmentId) {
 
-        return repository.findAll();
+        return repository.findAllByApartmentId(apartmentId);
     }
 
     public List<Expense> getByCategory(
-            ExpenseCategory category) {
+            ExpenseCategory category, UUID apartmentId) {
 
-        return repository.findByCategory(category);
+        return repository.findByCategoryAndApartmentId(category, apartmentId);
     }
 
 
-    public FundSummaryResponse getFundSummary() {
+    public FundSummaryResponse getFundSummary(UUID apartmentId) {
 
         Double totalCollection =
                 maintenanceClient
-                        .getTotalCollectedAmount();
+                        .getTotalCollectedAmount(apartmentId.toString());
 
         Double totalExpenses =
-                repository.getTotalExpenses();
+                repository.getTotalExpenses(apartmentId);
 
         return FundSummaryResponse.builder()
                 .totalCollection(totalCollection)

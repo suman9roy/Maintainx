@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import com.maintainx.payment_service.dto.MarkBillPaidRequest;
 import com.maintainx.payment_service.dto.PaymentMode;
@@ -45,10 +46,14 @@ public class PaymentService {
     private final ApplicationEventPublisher eventPublisher;
     private final RazorpayClient client;
     public RazorpayOrderResponse createOrder(
-            CreateOrderRequest request, String userId, String role) throws Exception {
+            CreateOrderRequest request, String userId, String role, UUID apartmentId) throws Exception {
 
         MaintenanceBillResponse bill =
-                maintenanceClient.getBill(request.getMaintenanceBillId(), userId, role);
+                maintenanceClient.getBill(request.getMaintenanceBillId(), userId, role, apartmentId.toString());
+        //need to check if bill is under the same apartment as the user making the request
+        if (!apartmentId.equals(bill.getApartmentId())) {
+            throw new InvalidRequestException("Bill does not belong to the specified apartment");
+        }
         log.info("Retrieved bill for user: {} and bill ID: {}", userId, bill.getId());
         if ("PAID".equals(bill.getPaymentStatus())) {
             // Was: RuntimeException("Bill already paid") → 500
@@ -57,8 +62,8 @@ public class PaymentService {
                     "Bill " + request.getMaintenanceBillId() + " is already paid"
             );
         }
-        log.info("Bill retrieved successfully for user: {} and bill ID: {} and amount: {}", userId, bill.getId(), bill.getAmount());
-       List<ResidentResponse> residentlist = residentClient.getResidentsByFlatNumber(bill.getFlatNumber());
+        log.info("Bill retrieved successfully for user: {} and bill ID: {} and amount: {} in apartment: {}", userId, bill.getId(), bill.getAmount(), bill.getApartmentId());
+       List<ResidentResponse> residentlist = residentClient.getResidentsByFlatNumber(bill.getFlatNumber(), apartmentId.toString());
         if (residentlist == null || residentlist.isEmpty()) {
             throw new ResourceNotFoundException(
                     "No resident found for flat number: " + bill.getFlatNumber()
@@ -80,6 +85,7 @@ public class PaymentService {
         log.info("Razorpay order created: {}", order.toString());
         Payment payment = Payment.builder()
                 .maintenanceBillId(bill.getId())
+                .apartmentId(bill.getApartmentId())
                 .flatNumber(bill.getFlatNumber())
                 .amount(bill.getAmount())
                 .razorpayOrderId(order.get("id"))
@@ -101,7 +107,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public String verifyPayment(PaymentVerificationRequest request) throws Exception {
+    public String verifyPayment(PaymentVerificationRequest request, UUID apartmentId) throws Exception {
 
         String generatedSignature = Utils.getHash(
                 request.getRazorpayOrderId() + "|" + request.getRazorpayPaymentId(),
@@ -117,7 +123,7 @@ public class PaymentService {
             );
         }
 
-        Payment payment = repository.findByRazorpayOrderId(request.getRazorpayOrderId())
+        Payment payment = repository.findByRazorpayOrderIdAndApartmentId(request.getRazorpayOrderId(), apartmentId)
                 // Was: RuntimeException("Payment not found") → 500
                 // Now: ResourceNotFoundException → 404
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -136,7 +142,8 @@ public class PaymentService {
             maintenanceClient.markBillAsPaid(
                     payment.getMaintenanceBillId(),
                     markReq,
-                    systemAdminId
+                    systemAdminId,
+                    apartmentId.toString()
             );
 
             payment.setBillSyncStatus(BillSyncStatus.SYNCED);

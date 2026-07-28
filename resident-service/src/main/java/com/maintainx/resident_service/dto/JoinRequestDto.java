@@ -9,8 +9,18 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 public class JoinRequestDto {
+
+    /**
+     * Which apartment the applicant is joining — chosen from the public
+     * apartment list. Required because at this point the applicant has
+     * no apartment association yet.
+     */
+    @NotNull(message = "Apartment selection is required")
+    private UUID apartmentId;
 
     @NotBlank(message = "Full name is required")
     @Size(max = 100, message = "Full name must be under 100 characters")
@@ -37,23 +47,11 @@ public class JoinRequestDto {
     @NotNull(message = "Resident type is required")
     private ResidentType residentType;
 
-    /**
-     * Cross-field rule: document is required for OWNER and TENANT
-     * but not FAMILY_MEMBER. We can't express this with a simple
-     * field annotation, so @AssertTrue on a method handles it.
-     *
-     * Note: the document (MultipartFile) itself is validated separately
-     * in JoinRequestService — this covers only the DTO fields.
-     * The residentType null check ensures a missing type doesn't
-     * cause an NPE here before @NotNull fires on that field.
-     */
     @AssertTrue(message = "OWNER and TENANT must upload a document (flat deed or rental agreement)")
     public boolean isDocumentRuleConsistent() {
-        if (residentType == null) return true; // @NotNull handles this
+        if (residentType == null) return true;
         return residentType == ResidentType.FAMILY_MEMBER
                 || residentType == ResidentType.OWNER
                 || residentType == ResidentType.TENANT;
-        // always true for valid enum values — actual file presence
-        // is checked in the service after the file arrives via multipart
     }
 }

@@ -33,8 +33,9 @@ public class Users {
     private String password;
 
     @Column(nullable = false)
-    private String role;                    // "ADMIN" | "RESIDENT"
-
+    private String role;                    // SUPER_ADMIN | ADMIN | RESIDENT
+    @Column(name = "apartment_id")
+    private UUID apartmentId;         // null for SUPER_ADMIN
     /**
      * Aadhaar number — admin cross-verifies this against the
      * uploaded flat deed / rental agreement PDF.

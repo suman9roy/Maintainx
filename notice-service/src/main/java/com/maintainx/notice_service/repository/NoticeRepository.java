@@ -5,8 +5,13 @@ import com.maintainx.notice_service.enums.NoticeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface NoticeRepository extends JpaRepository<Notice,Long> {
 
-    List<Notice> findByType(NoticeType type);
+
+
+    List<Notice> findAllByApartmentId(UUID apartmentId);
+
+    List<Notice> findByTypeAndApartmentId(NoticeType type, UUID apartmentId);
 }

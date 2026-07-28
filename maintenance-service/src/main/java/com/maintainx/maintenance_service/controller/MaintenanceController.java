@@ -23,36 +23,39 @@ public class MaintenanceController {
     // the method body runs — invalid requests return 400 immediately
     // via GlobalExceptionHandler.handleValidation()
     @PostMapping
-    public MaintenanceBill generateBill(@Valid @RequestBody MaintenanceRequest request) {
-        return service.generateBill(request);
+    public MaintenanceBill generateBill(@Valid @RequestBody MaintenanceRequest request,
+                                        @RequestHeader("X-Apartment-Id") String apartmentId) {
+        return service.generateBill(request, UUID.fromString(apartmentId));
     }
 
     @GetMapping
-    public List<MaintenanceBill> getAllBills() {
-        return service.getAllBills();
+    public List<MaintenanceBill> getAllBills(@RequestHeader("X-Apartment-Id") String apartmentId) {
+        return service.getAllBills(UUID.fromString(apartmentId));
     }
 
     @GetMapping("/{flatNumber}")
     public List<MaintenanceBill> getBillsByFlat(
             @PathVariable String flatNumber,
             @RequestHeader("X-User-Id")   String userId,
-            @RequestHeader("X-User-Role") String role) {
+            @RequestHeader("X-User-Role") String role,
+            @RequestHeader("X-Apartment-Id") String apartmentId) {
 
-        return service.getBillsByFlat(flatNumber, userId, role);
+        return service.getBillsByFlat(flatNumber, userId, role, UUID.fromString(apartmentId));
     }
 
     @GetMapping("/total-collected")
-    public Double getTotalCollectedAmount() {
-        return service.getTotalCollectedAmount();
+    public Double getTotalCollectedAmount(@RequestHeader("X-Apartment-Id") String apartmentId) {
+        return service.getTotalCollectedAmount(UUID.fromString(apartmentId));
     }
 
     @GetMapping("/bill/{id}")
     public MaintenanceBill getBill(
             @PathVariable UUID id,
             @RequestHeader("X-User-Id")   String userId,
-            @RequestHeader("X-User-Role") String role) {
+            @RequestHeader("X-User-Role") String role,
+            @RequestHeader("X-Apartment-Id") String apartmentId) {
 
-        return service.getBill(id, userId, role);
+        return service.getBill(id, userId, role, UUID.fromString(apartmentId));
     }
 
 //    @PutMapping("/mark-paid/{id}")
@@ -64,11 +67,13 @@ public class MaintenanceController {
     public MaintenanceBill markPaid(
             @PathVariable UUID id,
             @Valid @RequestBody MarkBillPaidRequest request,
-            @RequestHeader("X-User-Id") String adminId) {
+            @RequestHeader("X-User-Id") String adminId,
+            @RequestHeader("X-Apartment-Id") String apartmentId ) {
         log.info("Marking bill {} as paid by admin {}", id, adminId);
         return service.markAsPaid(
                 id,
                 request,
-                UUID.fromString(adminId));
+                UUID.fromString(adminId),
+                UUID.fromString(apartmentId));
     }
 }

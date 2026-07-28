@@ -13,4 +13,6 @@ public interface ResidentClient {
     List<ResidentResponse> getResidentsForUser(
             @RequestHeader("X-User-Id") String userId,
             @RequestHeader("X-User-Role") String role);
+    @GetMapping("/residents")
+    List<ResidentResponse> getResidentsForApartment(@RequestHeader("X-Apartment-Id") String apartmentId);
 }

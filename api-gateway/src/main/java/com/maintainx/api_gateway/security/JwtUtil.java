@@ -22,11 +22,6 @@ public class JwtUtil {
 
     private Key signingKey; // decoded once, reused for every request
 
-    /**
-     * Fail-fast at startup — same validation as auth-service.
-     * If this app boots successfully, the secret is guaranteed
-     * to be a valid 256-bit key.
-     */
     @PostConstruct
     public void init() {
 
@@ -52,14 +47,6 @@ public class JwtUtil {
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /**
-     * Validates the token signature and expiry.
-     *
-     * IMPORTANT: now logs WHY validation failed (expired, malformed,
-     * bad signature, etc.) instead of silently returning false for
-     * every case. Without this, a corrupted secret looks identical
-     * to "every token is invalid" with zero diagnostic information.
-     */
     public boolean validateToken(String token) {
         try {
             Claims claims = extractAllClaims(token);
@@ -76,6 +63,15 @@ public class JwtUtil {
 
     public String extractRole(String token) {
         return extractAllClaims(token).get("role", String.class);
+    }
+
+    /**
+     * Returns null for SUPER_ADMIN tokens (they carry no apartmentId claim)
+     * or for any token issued before this claim existed. Callers must
+     * treat null as "no apartment scope" — never as "matches everything".
+     */
+    public String extractApartmentId(String token) {
+        return extractAllClaims(token).get("apartmentId", String.class);
     }
 
     private Claims extractAllClaims(String token) {

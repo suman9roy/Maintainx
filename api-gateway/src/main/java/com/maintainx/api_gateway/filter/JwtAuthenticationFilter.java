@@ -29,23 +29,14 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         String path     = exchange.getRequest().getURI().getPath();
         HttpMethod method = exchange.getRequest().getMethod();
 
-        // ── 0. Always pass through OPTIONS (CORS preflight) ───────────────────
-        //
-        // Browsers send an OPTIONS request BEFORE the actual request to check
-        // if CORS is allowed. This must succeed WITHOUT an Authorization header.
-        // CorsWebFilter (order -2) handles adding the CORS response headers.
-        // If we checked JWT here, every preflight would get a 401 and the
-        // browser would block the real request before it's even sent.
         if (HttpMethod.OPTIONS.equals(method)) {
             return chain.filter(exchange);
         }
 
-        // ── 1. Skip public routes (/auth/register, /auth/login) ──────────────
         if (!validator.isSecured.test(path)) {
             return chain.filter(exchange);
         }
 
-        // ── 2. Require Authorization header ──────────────────────────────────
         String authHeader = exchange.getRequest()
                 .getHeaders()
                 .getFirst(HttpHeaders.AUTHORIZATION);
@@ -60,22 +51,29 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             return reject(exchange, HttpStatus.UNAUTHORIZED);
         }
 
-        // ── 3. Extract claims from verified JWT ───────────────────────────────
-        UUID   userId = jwtUtil.extractUserId(token);
-        String role   = jwtUtil.extractRole(token);
+        UUID   userId      = jwtUtil.extractUserId(token);
+        String role        = jwtUtil.extractRole(token);
+        String apartmentId = jwtUtil.extractApartmentId(token);   // NEW — null for SUPER_ADMIN
 
-        // ── 4. Enforce RBAC ───────────────────────────────────────────────────
         if (isAdminOnly(path, method) && !"ADMIN".equals(role)) {
             return reject(exchange, HttpStatus.FORBIDDEN);
         }
 
-        // ── 5. Strip forgeable headers, inject from verified JWT ──────────────
+        // Super-admin-only routes (e.g. /super-admin/**) are guarded inside
+        // auth-service itself via RoleGuard, not here — the gateway still
+        // forwards them through since they're outside the isAdminOnly()
+        // path list above.
+
         ServerWebExchange mutated = exchange.mutate()
                 .request(r -> r.headers(headers -> {
                     headers.remove("X-User-Id");
                     headers.remove("X-User-Role");
+                    headers.remove("X-Apartment-Id");
                     headers.add("X-User-Id",   userId.toString());
                     headers.add("X-User-Role", role);
+                    if (apartmentId != null) {
+                        headers.add("X-Apartment-Id", apartmentId);
+                    }
                 }))
                 .build();
 
@@ -84,12 +82,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -1;  // after CorsWebFilter (-2), before everything else
+        return -1;
     }
 
     private boolean isAdminOnly(String path, HttpMethod method) {
 
-        // ── JOIN REQUESTS ─────────────────────────────────────────────────────
         if (path.startsWith("/join-requests")) {
             if (HttpMethod.POST.equals(method)
                     && path.equals("/join-requests"))  return false;
@@ -97,7 +94,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             return true;
         }
 
-        // ── RESIDENTS ─────────────────────────────────────────────────────────
         if (path.startsWith("/residents")) {
             if (HttpMethod.POST.equals(method))        return true;
             if (HttpMethod.DELETE.equals(method))      return true;
@@ -106,7 +102,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             return false;
         }
 
-        // ── MAINTENANCE ───────────────────────────────────────────────────────
         if (path.startsWith("/maintenance")) {
             if (HttpMethod.POST.equals(method))        return true;
             if (HttpMethod.PUT.equals(method)){
@@ -119,24 +114,20 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             return false;
         }
 
-        // ── EXPENSES ──────────────────────────────────────────────────────────
         if (path.startsWith("/expenses")) {
             return HttpMethod.POST.equals(method);
         }
 
-        // ── NOTICES ───────────────────────────────────────────────────────────
         if (path.startsWith("/notices")) {
             return HttpMethod.POST.equals(method);
         }
 
-        // ── COMPLAINTS ────────────────────────────────────────────────────────
         if (path.startsWith("/complaints")) {
             if (HttpMethod.POST.equals(method))              return false;
             if (path.matches("/complaints/resident/.+"))     return false;
             return true;
         }
 
-        // ── PAYMENTS ──────────────────────────────────────────────────────────
         return false;
     }
 

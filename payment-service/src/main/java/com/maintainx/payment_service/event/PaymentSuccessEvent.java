@@ -17,7 +17,7 @@ public class PaymentSuccessEvent {
     // updated to match too, or Kafka JSON deserialization will fail
     // (a UUID serializes as a string, which cannot bind to a Long field).
     private UUID maintenanceBillId;
-
+    private UUID apartmentId;
     private String flatNumber;
 
     private String residentEmail;

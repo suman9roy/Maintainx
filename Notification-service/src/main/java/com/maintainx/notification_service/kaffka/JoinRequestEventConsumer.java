@@ -71,14 +71,16 @@ public class JoinRequestEventConsumer {
             emailService.sendJoinRequestApprovedMail(
                     event.getResidentEmail(),
                     event.getFullName(),
-                    event.getFlatNumber()
+                    event.getFlatNumber(),
+                    event.getApartmentId().toString()
             );
         } else if ("REJECTED".equals(event.getStatus())) {
             emailService.sendJoinRequestRejectedMail(
                     event.getResidentEmail(),
                     event.getFullName(),
                     event.getFlatNumber(),
-                    event.getRejectionReason()
+                    event.getRejectionReason(),
+                    event.getApartmentId().toString()
             );
         }
     }

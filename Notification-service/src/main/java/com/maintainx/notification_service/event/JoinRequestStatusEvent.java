@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class JoinRequestStatusEvent {
 
     private String userId;
+    private String apartmentId;
     private String residentEmail;
     private String fullName;
     private String flatNumber;

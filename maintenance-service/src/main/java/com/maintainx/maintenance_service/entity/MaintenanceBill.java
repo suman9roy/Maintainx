@@ -28,7 +28,8 @@ public class MaintenanceBill {
     //    Postgres has no auto-increment for UUID.
     @Column(updatable = false, nullable = false)
     private UUID id;
-
+    @Column(name = "apartment_id", nullable = false)
+    private UUID apartmentId;
     private String flatNumber;
     private BigDecimal amount;
     private String month;

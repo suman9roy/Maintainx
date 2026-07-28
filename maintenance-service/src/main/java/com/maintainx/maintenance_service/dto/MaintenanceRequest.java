@@ -15,6 +15,8 @@ public class MaintenanceRequest {
 
     @NotBlank(message = "Flat number is required")
     private String flatNumber;
+    @NotBlank(message = "Apartment ID is required")
+    private String apartmentId;
 
     @NotNull(message = "Amount is required")
     @Positive(message = "Amount must be greater than zero")

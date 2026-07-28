@@ -24,6 +24,12 @@ public class AuthService {
     private final BCryptPasswordEncoder encoder;
     private final JwtUtil jwtUtil;
 
+    /**
+     * Self-registration is only ever for residents, and residents don't
+     * belong to an apartment yet at this point — that gets assigned when
+     * an admin approves their join request against a specific apartment
+     * (resident-service, a later step). So apartmentId stays null here.
+     */
     public Map<String, String> register(RegisterRequest request) {
 
         if (repository.existsByEmail(request.getEmail())) {
@@ -42,7 +48,6 @@ public class AuthService {
 
         Users saved = repository.save(user);
 
-        // Return userId so the resident can use it in subsequent requests
         return Map.of(
                 "message", "User Registered Successfully",
                 "userId",  saved.getId().toString()
@@ -61,6 +66,6 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
-        return jwtUtil.generateToken(user.getId(), user.getRole());
+        return jwtUtil.generateToken(user.getId(), user.getRole(), user.getApartmentId());
     }
 }

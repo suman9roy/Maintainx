@@ -15,7 +15,8 @@ public class NoticeRequest {
     @NotBlank(message = "Title is required")
     @Size(max = 150, message = "Title must be under 150 characters")
     private String title;
-
+    @NotBlank(message = "Apartment ID is required")
+    private String apartmentId;
     @NotBlank(message = "Message is required")
     @Size(max = 2000, message = "Message must be under 2000 characters")
     // 2000 matches the entity's @Column(length = 2000) — this also

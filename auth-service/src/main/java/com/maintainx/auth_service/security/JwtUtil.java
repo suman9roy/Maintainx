@@ -1,5 +1,6 @@
 package com.maintainx.auth_service.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -55,14 +56,35 @@ public class JwtUtil {
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(UUID uuId, String role) {
+    /**
+     * apartmentId is nullable — SUPER_ADMIN tokens carry no apartment scope.
+     */
+    public String generateToken(UUID userId, String role, UUID apartmentId) {
 
-        return Jwts.builder()
-                .setSubject(uuId.toString())
+        var builder = Jwts.builder()
+                .setSubject(userId.toString())
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRY_MS))
-                .signWith(signingKey)
-                .compact();
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRY_MS));
+
+        if (apartmentId != null) {
+            builder.claim("apartmentId", apartmentId.toString());
+        }
+
+        return builder.signWith(signingKey).compact();
+    }
+
+    /**
+     * Parses and verifies a token's signature/expiry, returning its claims.
+     * Throws an unchecked JwtException (from io.jsonwebtoken) if the token
+     * is invalid, expired, or tampered with — callers should treat any
+     * exception here as "unauthenticated".
+     */
+    public Claims parseClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(signingKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

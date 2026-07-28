@@ -17,7 +17,7 @@ import java.util.UUID;
 @Builder
 public class PaymentSuccessEvent {
     private UUID maintenanceBillId;
-
+    private UUID apartmentId;
     private String flatNumber;
 
     private String residentEmail;

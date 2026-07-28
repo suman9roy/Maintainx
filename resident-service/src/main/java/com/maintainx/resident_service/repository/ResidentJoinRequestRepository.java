@@ -13,16 +13,18 @@ import java.util.UUID;
 public interface ResidentJoinRequestRepository
         extends JpaRepository<ResidentJoinRequest, Long> {
 
-    // Resident views their own requests
+    // Resident views their own requests (across any apartment they've applied to)
     List<ResidentJoinRequest> findByUserId(UUID userId);
 
-    // Admin filters by status — PENDING / APPROVED / REJECTED
-    List<ResidentJoinRequest> findByStatus(JoinRequestStatus status);
+    // Admin filters by status — scoped to their own apartment only
+    List<ResidentJoinRequest> findByApartmentIdAndStatus(UUID apartmentId, JoinRequestStatus status);
+    List<ResidentJoinRequest> findByApartmentId(UUID apartmentId);
 
-    // Duplicate check: has this user already requested this flat?
-    boolean existsByUserIdAndFlatNumberAndStatus(
+    // Duplicate check: has this user already requested this flat in this apartment?
+    boolean existsByUserIdAndFlatNumberAndApartmentIdAndStatus(
             UUID userId,
             String flatNumber,
+            UUID apartmentId,
             JoinRequestStatus status
     );
 }
