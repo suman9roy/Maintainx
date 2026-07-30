@@ -8,7 +8,7 @@ export default function Expenses() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [adding, setAdding] = useState(false);
-  const [form, setForm] = useState({ title: '', category: 'STAFF_SALARY', amount: '', description: '', expenseDate: '' });
+  const [form, setForm] = useState({ title: '', category: 'STAFF_SALARY', amount: '', apartmentId: '', description: '', expenseDate: '' });
   const [fund, setFund] = useState(null);
 
   useEffect(() => { load(); loadFund(); }, []);
@@ -31,8 +31,8 @@ export default function Expenses() {
     setAdding(true);
     try {
       // basic validation
-      if (!form.title || !form.category || !form.amount || !form.expenseDate) {
-        setError('Please fill title, category, amount and date.');
+      if (!form.title || !form.category || !form.amount || !form.apartmentId || !form.expenseDate) {
+        setError('Please fill title, category, amount, apartment ID and date.');
         setAdding(false);
         return;
       }
@@ -40,12 +40,13 @@ export default function Expenses() {
         title: form.title,
         category: form.category,
         amount: Number(form.amount),
+        apartmentId: form.apartmentId.trim(),
         description: form.description,
         expenseDate: form.expenseDate,
       };
       await addExpense(payload);
       setSuccess('Expense added.');
-      setForm({ title: '', category: form.category, amount: '', description: '', expenseDate: '' });
+      setForm({ title: '', category: form.category, amount: '', apartmentId: '', description: '', expenseDate: '' });
       load(); loadFund();
     } catch (err) {
       setError(err.response?.data?.message ?? 'Failed to add expense.');
@@ -96,9 +97,15 @@ export default function Expenses() {
             <input type="date" value={form.expenseDate} onChange={e => setForm({...form, expenseDate: e.target.value})} style={s.input} />
           </div>
         </div>
-        <div style={s.field}>
-          <label style={s.label}>Description</label>
-          <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} style={s.textarea} rows={3} />
+        <div style={s.row}>
+          <div style={s.field}>
+            <label style={s.label}>Apartment ID *</label>
+            <input value={form.apartmentId} onChange={e => setForm({...form, apartmentId: e.target.value})} style={s.input} placeholder="e.g. 5f2b..." />
+          </div>
+          <div style={s.field}>
+            <label style={s.label}>Description</label>
+            <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} style={s.textarea} rows={3} />
+          </div>
         </div>
         <button onClick={handleAdd} disabled={adding} style={s.submitBtn}>{adding ? 'Adding…' : 'Add Expense'}</button>
       </div>

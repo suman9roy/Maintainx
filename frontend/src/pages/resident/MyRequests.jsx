@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Layout from '../../components/Layout';
 import { getMyRequests } from '../../api/joinRequests';
+import { normalizeJoinRequestStatus, normalizeJoinRequests } from '../../utils/joinRequestStatus';
 
 const STATUS_STYLE = {
   PENDING:  { background: '#fef3c7', color: '#92400e' },
@@ -15,7 +16,7 @@ export default function MyRequests() {
 
   useEffect(() => {
     getMyRequests()
-      .then(res => setRequests(res.data ?? []))
+      .then(res => setRequests(normalizeJoinRequests(res.data)))
       .catch(() => setError('Failed to load your requests.'))
       .finally(() => setLoading(false));
   }, []);
@@ -41,7 +42,9 @@ export default function MyRequests() {
               <div style={s.flat}>{r.flatNumber} — {r.blockName}, Floor {r.floorNumber}</div>
               <div style={s.meta}>{r.residentType} · {r.fullName}</div>
             </div>
-            <span style={{ ...s.badge, ...STATUS_STYLE[r.status] }}>{r.status}</span>
+            <span style={{ ...s.badge, ...STATUS_STYLE[normalizeJoinRequestStatus(r.status)] }}>
+              {normalizeJoinRequestStatus(r.status)}
+            </span>
           </div>
 
           <div style={s.cardBody}>
@@ -61,7 +64,7 @@ export default function MyRequests() {
                 <span>📎 {r.documentName}</span>
               </div>
             )}
-            {r.status === 'REJECTED' && r.rejectionReason && (
+            {normalizeJoinRequestStatus(r.status) === 'REJECTED' && r.rejectionReason && (
               <div style={s.rejectReason}>
                 <strong>Rejection reason:</strong> {r.rejectionReason}
               </div>

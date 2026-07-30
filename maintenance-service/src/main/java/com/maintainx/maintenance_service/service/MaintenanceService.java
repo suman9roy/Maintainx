@@ -14,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,7 +55,8 @@ public class MaintenanceService {
             String flatNumber, String userId, String role, UUID apartmentId) {
 
         if (!"ADMIN".equals(role)) {
-            if (!requireFlatAccess(flatNumber, userId, role, apartmentId)) {
+
+            if (!isUserAssignedToSameFlat(flatNumber, userId, role, apartmentId)) {
                 // Was: throw new RuntimeException(...) → fell through to 500
                 // Now: UnauthorizedAccessException → 403 with a clear message
                 throw new UnauthorizedAccessException(
@@ -98,7 +97,7 @@ public class MaintenanceService {
             return bill;
         }
 
-        if (!requireFlatAccess(bill.getFlatNumber(), userId, role, apartmentId)) {
+        if (!isUserAssignedToSameFlat(bill.getFlatNumber(), userId, role, apartmentId)) {
             throw new UnauthorizedAccessException(
                     "Access denied — this bill does not belong to your flat"
             );
@@ -143,11 +142,12 @@ public class MaintenanceService {
 
     // ── private ───────────────────────────────────────────────────────────────
 
-    private boolean requireFlatAccess(
+    private boolean isUserAssignedToSameFlat(
             String flatNumber, String userId, String role, UUID apartmentId) {
 
         List<ResidentResponse> residents =
                 residentClient.getResidentsForUser(userId, role);
+        log.info("Retrieved residents for user {}: {}", userId, residents);
 
         if (residents.isEmpty()) {
             // Was: RuntimeException → 500
@@ -158,7 +158,9 @@ public class MaintenanceService {
             );
         }
 
+
         return residents.stream()
-                .anyMatch(r -> r.getFlatNumber().equals(flatNumber) && r.getApartmentId().equals(apartmentId.toString()));
+                .anyMatch(resident -> resident.getFlatNumber().equals(flatNumber)
+                        && apartmentId.equals(resident.getApartmentId()));
     }
 }

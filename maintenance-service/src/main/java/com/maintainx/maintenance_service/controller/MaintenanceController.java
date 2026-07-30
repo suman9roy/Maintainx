@@ -38,7 +38,13 @@ public class MaintenanceController {
             @PathVariable String flatNumber,
             @RequestHeader("X-User-Id")   String userId,
             @RequestHeader("X-User-Role") String role,
-            @RequestHeader("X-Apartment-Id") String apartmentId) {
+            @RequestHeader(value = "X-Apartment-Id", required = false) String apartmentId) {
+        if (apartmentId == null) {
+            return List.of();
+        }
+
+
+
 
         return service.getBillsByFlat(flatNumber, userId, role, UUID.fromString(apartmentId));
     }

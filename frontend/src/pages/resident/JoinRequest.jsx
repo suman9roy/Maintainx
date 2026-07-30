@@ -4,9 +4,11 @@ import { submitJoinRequest } from '../../api/joinRequests';
 
 const RESIDENT_TYPES = ['OWNER', 'TENANT', 'FAMILY_MEMBER'];
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export default function JoinRequest() {
   const [form, setForm] = useState({
-    fullName: '', phoneNumber: '', residentEmail: '',
+    apartmentId: '', fullName: '', phoneNumber: '', residentEmail: '',
     flatNumber: '', blockName: '', floorNumber: '',
     residentType: 'OWNER',
   });
@@ -40,6 +42,16 @@ export default function JoinRequest() {
     setError('');
     setSuccess('');
 
+    if (!form.apartmentId.trim()) {
+      setError('Please enter the apartment ID you are joining.');
+      return;
+    }
+
+    if (!UUID_REGEX.test(form.apartmentId.trim())) {
+      setError('Please enter a valid apartment UUID.');
+      return;
+    }
+
     if (form.residentType !== 'FAMILY_MEMBER' && !document) {
       setError(`A document (flat deed or rental agreement) is required for ${form.residentType}.`);
       return;
@@ -47,10 +59,14 @@ export default function JoinRequest() {
 
     setLoading(true);
     try {
-      await submitJoinRequest({ ...form, floorNumber: Number(form.floorNumber) }, document);
+      await submitJoinRequest({
+        ...form,
+        apartmentId: form.apartmentId.trim(),
+        floorNumber: Number(form.floorNumber),
+      }, document);
       setSuccess('Join request submitted successfully! The admin will review your request.');
       setForm({
-        fullName: '', phoneNumber: '', residentEmail: '',
+        apartmentId: '', fullName: '', phoneNumber: '', residentEmail: '',
         flatNumber: '', blockName: '', floorNumber: '', residentType: 'OWNER',
       });
       setDocument(null);
@@ -73,6 +89,13 @@ export default function JoinRequest() {
         </p>
 
         <form onSubmit={handleSubmit} style={s.form}>
+
+          <div style={s.field}>
+            <label style={s.label}>Apartment ID *</label>
+            <input name="apartmentId" required value={form.apartmentId}
+              onChange={handleChange} style={s.input} placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000" />
+            <p style={s.docHint}>Enter the apartment UUID selected from the apartment list.</p>
+          </div>
 
           <div style={s.row}>
             <div style={s.field}>

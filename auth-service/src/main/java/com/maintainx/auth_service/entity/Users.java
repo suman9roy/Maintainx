@@ -46,4 +46,14 @@ public class Users {
      */
     @Column(name = "aadhar_number", unique = true)
     private String aadharNumber;
+    /**
+     * Defaults to true so SUPER_ADMIN (seeded) and ADMIN (created via
+     * SuperAdminService.onboardApartment) accounts — which never go
+     * through self-registration — aren't locked out by the OTP
+     * verification requirement below. Only AuthService.register()
+     * explicitly sets this to false for self-registered residents.
+     */
+    @Builder.Default
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified = true;
 }

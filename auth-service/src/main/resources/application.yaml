@@ -4,3 +4,5 @@ spring:
 
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+otp:
+  expiry-minutes: ${OTP_EXPIRY_MINUTES:10}

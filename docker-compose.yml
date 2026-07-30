@@ -107,6 +107,7 @@ services:
       JAVA_TOOL_OPTIONS: "-Xmx250m -Xms128m"
       CONFIG_SERVER_URL: http://config-server:8888
       EUREKA_SERVER_URL: http://discovery-server:8761/eureka/
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     env_file:
       - ./env/auth-service.env
     depends_on:

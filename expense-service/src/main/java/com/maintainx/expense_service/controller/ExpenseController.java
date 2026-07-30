@@ -21,23 +21,45 @@ public class ExpenseController {
 
     @PostMapping
     public Expense addExpense(@Valid @RequestBody ExpenseRequest request,
-                                @RequestHeader("X-Apartment-Id") String apartmentId) {
+                              @RequestHeader("X-Apartment-Id") String apartmentId) {
         return service.addExpense(request, UUID.fromString(apartmentId));
     }
 
+    /**
+     * X-Apartment-Id is OPTIONAL on all three GET endpoints below — a
+     * resident whose join request is still pending has no apartmentId
+     * yet, and visiting "Society Expenses" in that state is normal, not
+     * an error. There's no apartment to report on yet, so return an
+     * empty/zeroed result instead of 500ing.
+     */
     @GetMapping
-    public List<Expense> getAllExpenses(@RequestHeader("X-Apartment-Id") String apartmentId) {
+    public List<Expense> getAllExpenses(
+            @RequestHeader(value = "X-Apartment-Id", required = false) String apartmentId) {
+        if (apartmentId == null) {
+            return List.of();
+        }
         return service.getAllExpenses(UUID.fromString(apartmentId));
     }
 
     @GetMapping("/category/{category}")
     public List<Expense> getByCategory(@PathVariable ExpenseCategory category,
-                                       @RequestHeader("X-Apartment-Id") String apartmentId) {
+                                       @RequestHeader(value = "X-Apartment-Id", required = false) String apartmentId) {
+        if (apartmentId == null) {
+            return List.of();
+        }
         return service.getByCategory(category, UUID.fromString(apartmentId));
     }
 
     @GetMapping("/fund-summary")
-    public FundSummaryResponse getFundSummary(@RequestHeader("X-Apartment-Id") String apartmentId) {
+    public FundSummaryResponse getFundSummary(
+            @RequestHeader(value = "X-Apartment-Id", required = false) String apartmentId) {
+        if (apartmentId == null) {
+            return FundSummaryResponse.builder()
+                    .totalCollection(0.0)
+                    .totalExpenses(0.0)
+                    .remainingFund(0.0)
+                    .build();
+        }
         return service.getFundSummary(UUID.fromString(apartmentId));
     }
 }

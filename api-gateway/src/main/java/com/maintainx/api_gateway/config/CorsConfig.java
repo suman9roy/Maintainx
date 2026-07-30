@@ -2,6 +2,7 @@ package com.maintainx.api_gateway.config;
 
 import com.maintainx.api_gateway.util.CorsProperties;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,6 +47,7 @@ import java.util.List;
  * immediately with 200 + CORS headers so the browser's preflight
  * check succeeds before the JWT filter even runs.
  */
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class CorsConfig {
@@ -92,6 +94,7 @@ public class CorsConfig {
         // Order -2 → runs before JwtAuthenticationFilter (order -1)
         // This guarantees CORS headers on ALL responses including 401/403
         CorsWebFilter filter = new CorsWebFilter(source);
+        log.info("CORS filter initialized with allowed origins: {}", corsProperties.getAllowedOrigins());
         return filter;
     }
 }

@@ -50,6 +50,7 @@ public class JwtUtil {
     public boolean validateToken(String token) {
         try {
             Claims claims = extractAllClaims(token);
+            log.info("JWT claims: {}", claims);
             return claims.getExpiration().getTime() > System.currentTimeMillis();
         } catch (Exception e) {
             log.warn("JWT validation failed: {}", e.getMessage());
@@ -71,7 +72,10 @@ public class JwtUtil {
      * treat null as "no apartment scope" — never as "matches everything".
      */
     public String extractApartmentId(String token) {
-        return extractAllClaims(token).get("apartmentId", String.class);
+        log.info("Extracting apartment ID from JWT token");
+        String apartmentId = extractAllClaims(token).get("apartmentId", String.class);
+        log.info("Extracted apartment ID: {}", apartmentId);
+        return apartmentId;
     }
 
     private Claims extractAllClaims(String token) {

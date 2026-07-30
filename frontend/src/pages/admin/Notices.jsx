@@ -17,7 +17,7 @@ export default function Notices() {
   const [success, setSuccess] = useState('');
   const [adding, setAdding] = useState(false);
   const [filterType, setFilterType] = useState('');
-  const [form, setForm] = useState({ title: '', message: '', type: 'GENERAL', meetingTime: '' });
+  const [form, setForm] = useState({ title: '', message: '', type: 'GENERAL', apartmentId: '', meetingTime: '' });
   const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => { load(); }, []);
@@ -35,8 +35,8 @@ export default function Notices() {
     setError(''); setSuccess(''); setFieldErrors({});
     setAdding(true);
     try {
-      if (!form.title || !form.message || !form.type) {
-        setError('Please fill title, message and type.');
+      if (!form.title || !form.message || !form.type || !form.apartmentId) {
+        setError('Please fill title, message, type and apartment ID.');
         setAdding(false);
         return;
       }
@@ -49,11 +49,12 @@ export default function Notices() {
         title: form.title,
         message: form.message,
         type: form.type,
+        apartmentId: form.apartmentId.trim(),
         meetingTime: form.meetingTime ? new Date(form.meetingTime).toISOString() : null,
       };
       await createNotice(payload);
       setSuccess('Notice created.');
-      setForm({ title: '', message: '', type: form.type, meetingTime: '' });
+      setForm({ title: '', message: '', type: form.type, apartmentId: '', meetingTime: '' });
       load();
     } catch (err) {
       const resp = err?.response?.data;
@@ -122,10 +123,16 @@ export default function Notices() {
             {fieldErrors.type && <div style={s.fieldError}>{fieldErrors.type}</div>}
           </div>
           <div style={s.field}>
-            <label style={s.label}>Meeting time (required for MEETING)</label>
-            <input type="datetime-local" value={form.meetingTime} onChange={e => setForm({...form, meetingTime: e.target.value})} style={s.input} />
-            {fieldErrors.meetingTime && <div style={s.fieldError}>{fieldErrors.meetingTime}</div>}
+            <label style={s.label}>Apartment ID *</label>
+            <input value={form.apartmentId} onChange={e => setForm({...form, apartmentId: e.target.value})} style={s.input} placeholder="e.g. 5f2b..." />
+            {fieldErrors.apartmentId && <div style={s.fieldError}>{fieldErrors.apartmentId}</div>}
           </div>
+        </div>
+
+        <div style={s.field}>
+          <label style={s.label}>Meeting time (required for MEETING)</label>
+          <input type="datetime-local" value={form.meetingTime} onChange={e => setForm({...form, meetingTime: e.target.value})} style={s.input} />
+          {fieldErrors.meetingTime && <div style={s.fieldError}>{fieldErrors.meetingTime}</div>}
         </div>
 
         <button onClick={handleAdd} disabled={adding} style={s.submitBtn}>{adding ? 'Creating…' : 'Create Notice'}</button>

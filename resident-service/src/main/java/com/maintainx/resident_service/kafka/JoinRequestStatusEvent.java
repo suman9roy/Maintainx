@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class JoinRequestStatusEvent {
 
     private String userId;          // UUID as string
+    private String apartmentId;     // UUID as string
     private String residentEmail;   // to send notification email
     private String fullName;
     private String flatNumber;

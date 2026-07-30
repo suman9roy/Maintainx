@@ -19,7 +19,9 @@ export default function Login() {
     try {
       const user = await login(form.email, form.password);
       // Redirect based on role after successful login
-      if (user?.role === 'ADMIN') {
+      if (user?.role === 'SUPER_ADMIN') {
+        navigate('/super-admin/apartments', { replace: true });
+      } else if (user?.role === 'ADMIN') {
         navigate('/admin', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
@@ -60,6 +62,8 @@ export default function Login() {
         <p style={styles.footer}>
           New resident?{' '}
           <Link to="/register" style={styles.link}>Create account</Link>
+          {' '}·{' '}
+          <Link to="/verify-email" style={styles.link}>Verify email</Link>
         </p>
       </div>
     </div>

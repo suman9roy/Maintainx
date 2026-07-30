@@ -2,10 +2,12 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import SuperAdminRoute from './components/SuperAdminRoute';
 
 // Auth
-import Login    from './pages/auth/Login';
-import Register from './pages/auth/Register';
+import Login       from './pages/auth/Login';
+import Register    from './pages/auth/Register';
+import VerifyEmail from './pages/auth/VerifyEmail';
 
 // Resident
 import ResidentDashboard from './pages/resident/Dashboard';
@@ -24,6 +26,7 @@ import AdminBills        from './pages/admin/Bills';
 import AdminComplaints   from './pages/admin/Complaints';
 import AdminExpenses     from './pages/admin/Expenses';
 import AdminNotices      from './pages/admin/Notices';
+import SuperAdminApartments from './pages/superadmin/Apartments';
 
 export default function App() {
   return (
@@ -32,8 +35,9 @@ export default function App() {
         <Routes>
 
           {/* Public */}
-          <Route path="/login"    element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/login"         element={<Login />} />
+          <Route path="/register"      element={<Register />} />
+          <Route path="/verify-email"  element={<VerifyEmail />} />
 
           {/* Authenticated */}
           <Route element={<ProtectedRoute />}>
@@ -50,13 +54,18 @@ export default function App() {
             {/* Admin routes */}
             <Route element={<AdminRoute />}>
               <Route path="/admin" element={<AdminDashboard />} />
-              {/* Uncomment as each page is built: */}
               <Route path="/admin/join-requests" element={<AdminJoinRequests />} />
               <Route path="/admin/residents" element={<AdminResidents />} />
-              {<Route path="/admin/bills"         element={<AdminBills />} /> }
-              <Route path="/admin/complaints"    element={<AdminComplaints />} />
-              <Route path="/admin/expenses"      element={<AdminExpenses />} />
-              {<Route path="/admin/notices"       element={<AdminNotices />} /> }
+              <Route path="/admin/bills" element={<AdminBills />} />
+              <Route path="/admin/complaints" element={<AdminComplaints />} />
+              <Route path="/admin/expenses" element={<AdminExpenses />} />
+              <Route path="/admin/notices" element={<AdminNotices />} />
+            </Route>
+
+            {/* Super admin routes */}
+            <Route element={<SuperAdminRoute />}>
+              <Route path="/super-admin" element={<Navigate to="/super-admin/apartments" replace />} />
+              <Route path="/super-admin/apartments" element={<SuperAdminApartments />} />
             </Route>
 
           </Route>

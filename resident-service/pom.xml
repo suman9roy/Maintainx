@@ -55,14 +55,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- add if this service calls other services synchronously -->
-        <!--
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-        -->
-
         <!-- add if this service publishes/consumes Kafka events -->
         <!--
         <dependency>

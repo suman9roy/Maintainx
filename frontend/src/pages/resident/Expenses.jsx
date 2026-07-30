@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import Layout from '../../components/Layout';
 import { getAllExpenses, getFundSummary } from '../../api/expenses';
+import { getMyResidents } from '../../api/residents';
+import { getMyRequests } from '../../api/joinRequests';
+import {
+  getApprovedJoinRequests,
+  normalizeJoinRequests,
+} from '../../utils/joinRequestStatus';
 
 export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
@@ -9,9 +15,25 @@ export default function Expenses() {
   const [error,    setError]    = useState('');
 
   useEffect(() => {
-    Promise.all([getAllExpenses(), getFundSummary()])
-      .then(([e, s]) => {
-        setExpenses(e.data ?? []);
+    Promise.all([getAllExpenses(), getFundSummary(), getMyResidents(), getMyRequests()])
+      .then(([e, s, residentRes, requestRes]) => {
+        const residentList = residentRes.data ?? [];
+        const requestList = normalizeJoinRequests(requestRes.data);
+        const apartmentIds = [
+          ...new Set([
+            ...residentList.map((res) => res.apartmentId ?? res.apartmentID ?? res.apartment_id).filter(Boolean),
+            ...getApprovedJoinRequests(requestList)
+              .map((req) => req.apartmentId ?? req.apartmentID ?? req.apartment_id)
+              .filter(Boolean),
+          ]),
+        ];
+
+        setExpenses(
+          (e.data ?? []).filter((expense) => {
+            const expenseApartment = expense.apartmentId ?? expense.apartmentID ?? expense.apartment_id;
+            return !expenseApartment || apartmentIds.includes(expenseApartment);
+          })
+        );
         setSummary(s.data ?? null);
       })
       .catch(() => setError('Failed to load expenses.'))

@@ -1,5 +1,6 @@
 package com.maintainx.resident_service.service;
 
+import com.maintainx.resident_service.client.AuthApartmentClient;
 import com.maintainx.resident_service.dto.JoinRequestDto;
 import com.maintainx.resident_service.dto.RejectRequestDto;
 import com.maintainx.resident_service.entity.Resident;
@@ -26,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -37,6 +39,10 @@ public class JoinRequestService {
     private final ResidentRepository residentRepository;
     private final JoinRequestEventProducer eventProducer;
 
+    private final AuthApartmentClient authApartmentClient;
+
+
+
     @Value("${document.upload-dir}")
     private String uploadDir;
 
@@ -44,6 +50,20 @@ public class JoinRequestService {
 
     public ResidentJoinRequest submitRequest(
             UUID userId, JoinRequestDto dto, MultipartFile document) throws IOException {
+
+        // Defends against a client bypassing the filtered /apartments/public
+        // list and submitting a request straight against a suspended or
+        // nonexistent apartmentId.
+        Map<String, Boolean> apartmentStatus = authApartmentClient.checkActive(dto.getApartmentId().toString());
+        if (!Boolean.TRUE.equals(apartmentStatus.get("exists"))) {
+            throw new InvalidRequestException("Selected apartment does not exist");
+        }
+        if (!Boolean.TRUE.equals(apartmentStatus.get("active"))) {
+            throw new InvalidRequestException(
+                    "This apartment is not currently accepting new residents. "
+                            + "Please contact MaintainX support if you believe this is an error."
+            );
+        }
 
         if (joinRequestRepository.existsByUserIdAndFlatNumberAndApartmentIdAndStatus(
                 userId, dto.getFlatNumber(), dto.getApartmentId(), JoinRequestStatus.PENDING)) {
@@ -200,6 +220,9 @@ public class JoinRequestService {
 
         residentRepository.save(resident);
 
+
+
+
         joinRequest.setStatus(JoinRequestStatus.APPROVED);
         joinRequest.setReviewedAt(LocalDateTime.now());
         joinRequestRepository.save(joinRequest);
@@ -207,6 +230,7 @@ public class JoinRequestService {
         eventProducer.publishStatusUpdate(
                 JoinRequestStatusEvent.builder()
                         .userId(joinRequest.getUserId().toString())
+                        .apartmentId(joinRequest.getApartmentId().toString())
                         .fullName(joinRequest.getFullName())
                         .flatNumber(joinRequest.getFlatNumber())
                         .residentEmail(joinRequest.getResidentEmail())

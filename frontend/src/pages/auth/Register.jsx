@@ -29,8 +29,8 @@ export default function Register() {
 
     try {
       const res = await register(form);
-      setSuccess(`Account created! Your user ID: ${res.userId}. Please log in.`);
-      setTimeout(() => navigate('/login'), 3000);
+      setSuccess(`Account created! Please verify your email with the OTP sent to ${form.email}.`);
+      setTimeout(() => navigate('/verify-email', { state: { email: form.email } }), 1200);
     } catch (err) {
       setError(err.message);
     }
@@ -85,6 +85,8 @@ export default function Register() {
         <p style={styles.footer}>
           Already registered?{' '}
           <Link to="/login" style={styles.link}>Sign in</Link>
+          {' '}·{' '}
+          <Link to="/verify-email" style={styles.link}>Verify email</Link>
         </p>
       </div>
     </div>

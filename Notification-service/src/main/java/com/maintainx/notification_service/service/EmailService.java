@@ -65,6 +65,38 @@ public class EmailService {
         );
     }
 
+    // ── Email verification OTP (registration) ───────────────────────────────
+
+    public void sendEmailVerificationOtpMail(String to, String fullName, String otp, int expiryMinutes) {
+        send(
+                to,
+                "MaintainX — Verify Your Email",
+                "Dear " + fullName + ",\n\n"
+                        + "Thanks for registering with MaintainX. Use the OTP below to verify your email address:\n\n"
+                        + "    " + otp + "\n\n"
+                        + "This OTP is valid for " + expiryMinutes + " minutes. You won't be able to log in until "
+                        + "your email is verified.\n\n"
+                        + "If you didn't create this account, you can safely ignore this email.\n\n"
+                        + "MaintainX Team"
+        );
+    }
+
+    // ── Password reset OTP (forgot password) ────────────────────────────────
+
+    public void sendPasswordResetOtpMail(String to, String fullName, String otp, int expiryMinutes) {
+        send(
+                to,
+                "MaintainX — Password Reset OTP",
+                "Dear " + fullName + ",\n\n"
+                        + "We received a request to reset your MaintainX password. Use the OTP below to proceed:\n\n"
+                        + "    " + otp + "\n\n"
+                        + "This OTP is valid for " + expiryMinutes + " minutes.\n\n"
+                        + "If you didn't request a password reset, you can safely ignore this email — "
+                        + "your password will not be changed.\n\n"
+                        + "MaintainX Team"
+        );
+    }
+
     // ── private helper ────────────────────────────────────────────────────────
 
     private void send(String to, String subject, String text) {

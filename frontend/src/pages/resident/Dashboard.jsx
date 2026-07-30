@@ -5,9 +5,16 @@ import { useAuth } from '../../context/AuthContext';
 import { getMyResidents } from '../../api/residents';
 import { getMyRequests } from '../../api/joinRequests';
 import { getAllNotices } from '../../api/notices';
+import {
+  getJoinRequestCounts,
+  getApprovedJoinRequests,
+  getUserApartmentIds,
+  normalizeJoinRequests,
+  normalizeJoinRequestStatus,
+} from '../../utils/joinRequestStatus';
 
 export default function ResidentDashboard() {
-  const { user } = useAuth();
+  const { user, refreshToken } = useAuth();
   const navigate = useNavigate();
 
   const [residents, setResidents] = useState([]);
@@ -15,22 +22,104 @@ export default function ResidentDashboard() {
   const [notices,   setNotices]   = useState([]);
   const [loading,   setLoading]   = useState(true);
 
-  useEffect(() => {
-    Promise.all([
+  function loadDashboardData() {
+    return Promise.allSettled([
       getMyResidents(),
       getMyRequests(),
       getAllNotices(),
-    ]).then(([r, rq, n]) => {
-      setResidents(r.data ?? []);
-      setRequests(rq.data ?? []);
-      setNotices((n.data ?? []).slice(0, 3)); // show latest 3
-    }).catch(console.error)
+    ]).then(([residentsResult, requestsResult, noticesResult]) => {
+
+      if (residentsResult.status === 'rejected') {
+        console.error('Failed to load residents:', residentsResult.reason);
+      }
+      if (requestsResult.status === 'rejected') {
+        console.error('Failed to load join requests:', requestsResult.reason);
+      }
+      if (noticesResult.status === 'rejected') {
+        // Expected for a resident with no approved apartment yet — notices
+        // are apartment-scoped, so this call can 400/403 before approval.
+        // Don't let it wipe out residents/requests, which loaded fine.
+        console.error('Failed to load notices:', noticesResult.reason);
+      }
+
+      const residentList = residentsResult.status === 'fulfilled'
+        ? (residentsResult.value.data ?? []) : [];
+      const requestList = requestsResult.status === 'fulfilled'
+        ? normalizeJoinRequests(requestsResult.value.data) : [];
+      const apartmentIds = getUserApartmentIds(residentList, requestList);
+
+      setResidents(residentList);
+      setRequests(requestList);
+      setNotices(
+        noticesResult.status === 'fulfilled'
+          ? (noticesResult.value.data ?? [])
+              .filter((notice) => {
+                const noticeApartment = notice.apartmentId ?? notice.apartmentID ?? notice.apartment_id;
+                return !noticeApartment || apartmentIds.includes(noticeApartment);
+              })
+              .slice(0, 3)
+          : []
+      );
+
+      // The current JWT was issued at login and only carries the
+      // apartmentId the user had *then*. If a join request has since
+      // been approved, our token is stale — the backend has already
+      // linked the apartment (see the auth-service Kafka consumer),
+      // but we're still holding a token with no/old apartmentId claim
+      // until we ask for a new one. Silently swap it in so every
+      // apartment-scoped call (maintenance, expenses, notices, etc.)
+      // starts working without the user having to log out.
+      const tokenApartmentId = user?.apartmentId ?? null;
+      const staleToken = apartmentIds.length > 0
+        && !apartmentIds.includes(tokenApartmentId);
+
+      if (staleToken) {
+        refreshToken().then((refreshed) => {
+          if (refreshed) loadDashboardData();
+        });
+      }
+    });
+  }
+
+  useEffect(() => {
+    loadDashboardData()
+      .catch(console.error)
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const pending  = requests.filter(r => r.status === 'PENDING').length;
-  const approved = requests.filter(r => r.status === 'APPROVED').length;
-  const rejected = requests.filter(r => r.status === 'REJECTED').length;
+  // While the resident has a request still awaiting a decision, poll
+  // periodically so an approval shows up (and the token gets refreshed,
+  // per the effect above) without requiring a manual page reload.
+  useEffect(() => {
+    const hasPending = requests.some(
+      (r) => normalizeJoinRequestStatus(r?.status ?? r?.requestStatus) === 'PENDING'
+    );
+    if (!hasPending) return;
+
+    const interval = setInterval(() => {
+      loadDashboardData().catch(console.error);
+    }, 20000);
+
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requests]);
+  const apartmentIds = getUserApartmentIds(residents, requests);
+  const { pending, approved, rejected } = getJoinRequestCounts(requests);
+
+  // Approved flats can come from two places: residents already linked
+  // via getMyResidents(), or join requests that were approved but
+  // haven't produced a resident record view yet. Dedupe by flat so the
+  // same flat doesn't show twice if it appears in both lists.
+  const approvedRequestFlats = getApprovedJoinRequests(requests);
+  const uniqueApprovedFlats = [...residents, ...approvedRequestFlats].filter(
+    (flat, index, all) =>
+      index === all.findIndex(
+        (f) =>
+          (f.id && f.id === flat.id) ||
+          (f.flatNumber === flat.flatNumber && f.blockName === flat.blockName)
+      )
+  );
 
   const quickLinks = [
     { label: '📋 Submit Join Request', to: '/join-request', color: '#2563eb' },
@@ -51,7 +140,7 @@ export default function ResidentDashboard() {
       {/* ── Stats ─────────────────────────────────────────────────── */}
       <div style={s.statsRow}>
         {[
-          { label: 'Approved Flats', value: residents.length, color: '#059669' },
+          { label: 'Approved Flats', value: uniqueApprovedFlats.length, color: '#059669' },
           { label: 'Pending Requests', value: pending,         color: '#d97706' },
           { label: 'Approved Requests', value: approved,       color: '#2563eb' },
           { label: 'Rejected Requests', value: rejected,       color: '#dc2626' },
@@ -64,15 +153,17 @@ export default function ResidentDashboard() {
       </div>
 
       {/* ── Approved flats ────────────────────────────────────────── */}
-      {residents.length > 0 && (
+      {uniqueApprovedFlats.length > 0 && (
         <section style={s.section}>
           <h3 style={s.sectionTitle}>My Approved Flats</h3>
           <div style={s.flatGrid}>
-            {residents.map(r => (
-              <div key={r.id} style={s.flatCard}>
+            {uniqueApprovedFlats.map((r, index) => (
+              <div key={`${r.id ?? r.apartmentId ?? `${r.flatNumber}-${r.blockName}-${index}`}`}
+                style={s.flatCard}
+              >
                 <div style={s.flatNum}>{r.flatNumber}</div>
                 <div style={s.flatMeta}>{r.blockName} · Floor {r.floorNumber}</div>
-                <span style={s.residentTypeBadge}>{r.residentType}</span>
+                <span style={s.residentTypeBadge}>{r.residentType ?? 'RESIDENT'}</span>
               </div>
             ))}
           </div>
@@ -80,7 +171,7 @@ export default function ResidentDashboard() {
       )}
 
       {/* ── No flat yet ───────────────────────────────────────────── */}
-      {residents.length === 0 && (
+      {uniqueApprovedFlats.length === 0 && (
         <div style={s.emptyBox}>
           <p style={s.emptyText}>You don't have any approved flat registrations yet.</p>
           <button style={s.emptyBtn} onClick={() => navigate('/join-request')}>

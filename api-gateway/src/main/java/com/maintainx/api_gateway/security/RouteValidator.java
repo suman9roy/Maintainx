@@ -15,6 +15,10 @@ public class RouteValidator {
     public static final List<String> openEndpoints = List.of(
             "/auth/register",
             "/auth/login",
+            "/auth/verify-email",
+            "/auth/resend-otp",
+            "/auth/forgot-password",
+            "/auth/reset-password",
             "/apartments/public"        // NEW — lets a prospective resident pick an apartment before they have any account
     );
 

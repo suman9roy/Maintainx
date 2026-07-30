@@ -25,10 +25,20 @@ const adminLinks = [
   { to: '/admin/notices',          label: '📌 Notices' },
 ];
 
+// Super admin sidebar links
+const superAdminLinks = [
+  { to: '/super-admin/apartments', label: '🏢 Apartments' },
+];
+
 export default function Layout({ children }) {
   const { role, user, logout } = useAuth();
   const navigate = useNavigate();
-  const links = role === 'ADMIN' ? adminLinks : residentLinks;
+  const links = role === 'SUPER_ADMIN' ? superAdminLinks
+              : role === 'ADMIN'       ? adminLinks
+              : residentLinks;
+  const homePath = role === 'SUPER_ADMIN' ? '/super-admin/apartments'
+                  : role === 'ADMIN'      ? '/admin'
+                  : '/dashboard';
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLinkClick = () => {
@@ -51,13 +61,13 @@ export default function Layout({ children }) {
           <button className="close-btn" onClick={() => setSidebarOpen(false)}>✕</button>
         </div>
 
-        <div className="brand" onClick={() => { navigate(role === 'ADMIN' ? '/admin' : '/dashboard'); handleLinkClick(); }}>
+        <div className="brand" onClick={() => { navigate(homePath); handleLinkClick(); }}>
           <span className="brand-icon">🏢</span>
           <span className="brand-name">MaintainX</span>
         </div>
 
         <div className="role-tag">
-          {role === 'ADMIN' ? '⚡ Admin' : '👤 Resident'}
+          {role === 'SUPER_ADMIN' ? '🛡️ Super Admin' : role === 'ADMIN' ? '⚡ Admin' : '👤 Resident'}
         </div>
 
         <nav className="nav">

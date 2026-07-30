@@ -35,13 +35,23 @@ public class ComplaintController {
         return service.getAllComplaints(UUID.fromString(apartmentId));
     }
 
+    /**
+     * X-Apartment-Id is OPTIONAL — a resident whose join request is still
+     * pending has no apartmentId yet, and hitting "My Complaints" in that
+     * state is normal, not an error. They can't have filed a complaint
+     * without an apartment (createComplaint requires one), so there's
+     * nothing to look up: return an empty list rather than 500ing.
+     */
     @GetMapping("/resident/{email}")
     public List<Complaint> getByResident(
             @PathVariable String email,
             @RequestHeader("X-User-Id") String userId,
             @RequestHeader("X-User-Role") String role,
-            @RequestHeader("X-Apartment-Id") String apartmentId) {
+            @RequestHeader(value = "X-Apartment-Id", required = false) String apartmentId) {
 
+        if (apartmentId == null) {
+            return List.of();
+        }
         return service.getByResident(email, userId, role, UUID.fromString(apartmentId));
     }
 

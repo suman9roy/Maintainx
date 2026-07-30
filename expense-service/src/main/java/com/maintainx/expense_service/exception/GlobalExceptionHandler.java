@@ -110,6 +110,15 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error",
                 "Something went wrong. Please try again later.", request, null);
     }
+    // for IllegalArgumentException, which is thrown when the apartmentId in the request header does not match the apartmentId in the request body
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(
+            IllegalArgumentException ex, HttpServletRequest request) {
+
+        log.warn("Illegal argument on {}: {}", request.getRequestURI(), ex.getMessage());
+
+        return build(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage(), request, null);
+    }
 
     // ── helper ───────────────────────────────────────────────────────────────
 

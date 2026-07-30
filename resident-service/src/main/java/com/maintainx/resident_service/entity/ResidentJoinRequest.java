@@ -39,7 +39,7 @@ public class ResidentJoinRequest {
 
     @Column(nullable = false)
     private String fullName;
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false)
     private String residentEmail;
 
     @Column(nullable = false)

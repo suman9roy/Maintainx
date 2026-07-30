@@ -32,7 +32,7 @@ public class ComplaintService {
             boolean ownsIdentity = getResidents(userId, role).stream()
                     .anyMatch(resident -> request.getResidentEmail().equalsIgnoreCase(resident.getEmail())
                             && request.getFlatNumber().equalsIgnoreCase(resident.getFlatNumber())
-                            && request.getApartmentId().equals(resident.getApartmentId()));
+                            && apartmentId.equals(resident.getApartmentId()));
             if (!ownsIdentity) {
                 // Was: throw new SecurityException(...) — not caught by
                 // GlobalExceptionHandler, fell through to a generic 500.

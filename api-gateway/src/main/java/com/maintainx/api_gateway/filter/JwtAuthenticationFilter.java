@@ -3,6 +3,7 @@ package com.maintainx.api_gateway.filter;
 import com.maintainx.api_gateway.security.JwtUtil;
 import com.maintainx.api_gateway.security.RouteValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
@@ -42,6 +44,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 .getFirst(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("Missing or invalid Authorization header for path={}", path);
             return reject(exchange, HttpStatus.UNAUTHORIZED);
         }
 

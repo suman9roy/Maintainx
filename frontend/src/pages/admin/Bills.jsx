@@ -24,7 +24,7 @@ const STATUS_STYLE = {
 };
 
 const EMPTY_FORM = {
-  flatNumber: '', amount: '', month: 'JANUARY',
+  flatNumber: '', apartmentId: '', amount: '', month: 'JANUARY',
   year: new Date().getFullYear(), dueDate: '',
 };
 
@@ -86,6 +86,7 @@ export default function AdminBills() {
     try {
       await generateBill({
         ...form,
+        apartmentId: form.apartmentId.trim(),
         amount: Number(form.amount),
         year:   Number(form.year),
       });
@@ -182,6 +183,11 @@ export default function AdminBills() {
               <input name="amount" type="number" required min="1"
                 value={form.amount} onChange={handleChange}
                 style={s.input} placeholder="2500" />
+            </div>
+            <div style={s.field}>
+              <label style={s.label}>Apartment ID *</label>
+              <input name="apartmentId" required value={form.apartmentId}
+                onChange={handleChange} style={s.input} placeholder="e.g. 5f2b..." />
             </div>
             <div style={s.field}>
               <label style={s.label}>Month *</label>

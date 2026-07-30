@@ -57,6 +57,28 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.UNAUTHORIZED, "Unauthorized", ex.getMessage(), request, null);
     }
 
+    // ── 403 — email not verified yet ────────────────────────────────────────
+
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    public ResponseEntity<ErrorResponse> handleEmailNotVerified(
+            EmailNotVerifiedException ex, HttpServletRequest request) {
+
+        log.warn("Login blocked (unverified email) on {}: {}", request.getRequestURI(), ex.getMessage());
+
+        return build(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage(), request, null);
+    }
+
+    // ── 400 — invalid/expired/used OTP ──────────────────────────────────────
+
+    @ExceptionHandler(InvalidOtpException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidOtp(
+            InvalidOtpException ex, HttpServletRequest request) {
+
+        log.warn("OTP validation failed on {}: {}", request.getRequestURI(), ex.getMessage());
+
+        return build(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage(), request, null);
+    }
+
     // ── 403 — ownership / access violations ─────────────────────────────────
 
     @ExceptionHandler(UnauthorizedAccessException.class)

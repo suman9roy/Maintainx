@@ -27,7 +27,7 @@ export default function MyComplaints() {
 
   const [form, setForm] = useState({
     residentEmail: user?.email ?? '',
-    flatNumber: '', title: '', description: '', category: 'PLUMBING',
+    flatNumber: '', apartmentId: '', title: '', description: '', category: 'PLUMBING',
   });
 
   // Ensure residentEmail is kept in sync when auth context becomes available
@@ -44,7 +44,12 @@ export default function MyComplaints() {
       setMyFlats(f.data ?? []);
       // Pre-fill first flat if available
       if (f.data?.[0]) {
-        setForm(prev => ({ ...prev, flatNumber: f.data[0].flatNumber }));
+        const firstFlat = f.data[0];
+        setForm(prev => ({
+          ...prev,
+          flatNumber: firstFlat.flatNumber,
+          apartmentId: prev.apartmentId || firstFlat.apartmentId || firstFlat.apartmentID || '',
+        }));
       }
     }).catch(() => setError('Failed to load complaints.'))
       .finally(() => setLoading(false));
@@ -62,9 +67,12 @@ export default function MyComplaints() {
         return;
       }
       // Ensure payload matches backend DTO fields exactly
+      const selectedFlat = myFlats.find(f => f.flatNumber === form.flatNumber);
+      const apartmentId = (form.apartmentId || '').trim() || selectedFlat?.apartmentId || selectedFlat?.apartmentID || '';
       const payload = {
         residentEmail: form.residentEmail || user?.email || '',
         flatNumber: form.flatNumber,
+        apartmentId,
         title: form.title,
         description: form.description,
         category: form.category,
@@ -149,7 +157,14 @@ export default function MyComplaints() {
               <label style={s.label}>Flat Number *</label>
               {myFlats.length > 0 ? (
                 <select name="flatNumber" value={form.flatNumber}
-                  onChange={e => { console.log('flatNumber change', e.target.value); setForm({...form, flatNumber: e.target.value}); }} style={s.select}>
+                  onChange={e => {
+                    const selectedFlat = myFlats.find(f => f.flatNumber === e.target.value);
+                    setForm({
+                      ...form,
+                      flatNumber: e.target.value,
+                      apartmentId: selectedFlat?.apartmentId || selectedFlat?.apartmentId || '',
+                    });
+                  }} style={s.select}>
                   <option value="">Select flat</option>
                   {myFlats.map(f => <option key={f.flatNumber} value={f.flatNumber}>{f.flatNumber}</option>)}
                 </select>
@@ -173,6 +188,17 @@ export default function MyComplaints() {
                 <div style={s.smallNote}>Selected: {form.category}</div>
                 {fieldErrors.category && <div style={s.fieldError}>{fieldErrors.category}</div>}
             </div>
+          </div>
+
+          <div style={s.field}>
+            <label style={s.label}>Apartment ID</label>
+            <input
+              value={form.apartmentId}
+              onChange={e => setForm({...form, apartmentId: e.target.value})}
+              style={s.input}
+              placeholder="Enter apartment ID (optional)"
+            />
+            <div style={s.smallNote}>Leave blank to use the selected flat’s linked apartment ID.</div>
           </div>
 
           <div style={s.field}>

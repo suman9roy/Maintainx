@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { login as loginApi, register as registerApi } from '../api/auth';
+import { login as loginApi, register as registerApi, refreshToken as refreshTokenApi } from '../api/auth';
 
 const AuthContext = createContext(null);
 
@@ -32,6 +32,7 @@ export function AuthProvider({ children }) {
   const userId = user?.sub    ?? null;
   const isAdmin    = role === 'ADMIN';
   const isResident = role === 'RESIDENT';
+  const isSuperAdmin = role === 'SUPER_ADMIN';
 
   // Auto-logout when token expires
   useEffect(() => {
@@ -108,6 +109,37 @@ export function AuthProvider({ children }) {
     }
   }
 
+  /**
+   * Silently reissues the JWT from the user's current DB state (picks up
+   * a newly-approved apartmentId, a changed role, etc.) without touching
+   * loading/error state or requiring a password — safe to call from a
+   * background poll. Swaps sessionStorage + context state in place so
+   * every subsequent request carries the fresh token.
+   *
+   * Returns the newly decoded user, or null if the refresh failed (e.g.
+   * the account no longer exists) — callers should treat null as
+   * "nothing changed, try again later" rather than forcing a logout,
+   * since the existing token may still be perfectly valid.
+   */
+  async function refreshToken() {
+    try {
+      const res = await refreshTokenApi();
+      const jwt = res.data;
+      const storedEmail = sessionStorage.getItem('email');
+      const decoded = decodeToken(jwt);
+      if (!decoded) return null;
+
+      sessionStorage.setItem('token', jwt);
+      const withEmail = { ...decoded, email: storedEmail || decoded.email };
+      setToken(jwt);
+      setUser(withEmail);
+      return withEmail;
+    } catch (err) {
+      console.error('Token refresh failed:', err);
+      return null;
+    }
+  }
+
   function logout() {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('email');
@@ -119,9 +151,9 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       token, user, role, userId,
-      isAdmin, isResident,
+      isAdmin, isResident, isSuperAdmin,
       loading, error,
-      login, register, logout,
+      login, register, logout, refreshToken,
     }}>
       {children}
     </AuthContext.Provider>

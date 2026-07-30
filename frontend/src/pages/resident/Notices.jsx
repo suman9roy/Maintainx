@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import Layout from '../../components/Layout';
 import { getAllNotices } from '../../api/notices';
+import { getMyResidents } from '../../api/residents';
+import { getMyRequests } from '../../api/joinRequests';
+import {
+  getApprovedJoinRequests,
+  normalizeJoinRequests,
+} from '../../utils/joinRequestStatus';
 
 const TYPE_STYLE = {
   GENERAL:          { background: '#e0e7ff', color: '#3730a3' },
@@ -22,8 +28,26 @@ export default function Notices() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getAllNotices()
-      .then(res => setNotices(res.data ?? []))
+    Promise.all([getAllNotices(), getMyResidents(), getMyRequests()])
+      .then(([noticeRes, residentRes, requestRes]) => {
+        const residentList = residentRes.data ?? [];
+        const requestList = normalizeJoinRequests(requestRes.data);
+        const approvedRequests = getApprovedJoinRequests(requestList);
+        const apartmentIds = [
+          ...new Set([
+            ...residentList.map((res) => res.apartmentId ?? res.apartmentID ?? res.apartment_id).filter(Boolean),
+            ...approvedRequests.map((req) => req.apartmentId ?? req.apartmentID ?? req.apartment_id).filter(Boolean),
+          ]),
+        ];
+
+        setNotices(
+          (noticeRes.data ?? []).filter((notice) => {
+            const noticeApartment = notice.apartmentId ?? notice.apartmentID ?? notice.apartment_id;
+            return !noticeApartment || apartmentIds.includes(noticeApartment);
+          })
+        );
+      })
+      .catch(() => setNotices([]))
       .finally(() => setLoading(false));
   }, []);
 

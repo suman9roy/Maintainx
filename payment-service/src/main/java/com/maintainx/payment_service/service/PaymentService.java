@@ -159,8 +159,7 @@ public class PaymentService {
                 PaymentSuccessEvent.builder()
                         .maintenanceBillId(payment.getMaintenanceBillId())
                         .flatNumber(payment.getFlatNumber())
-                        //to-do email id of resident should be fetched from resident service need a client for that
-
+                        .apartmentId(payment.getApartmentId())
                         .residentEmail(payment.getResidentEmail())
                         .amount(payment.getAmount())
                         .paymentId(payment.getRazorpayPaymentId())

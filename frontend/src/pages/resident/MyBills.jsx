@@ -3,8 +3,13 @@ import Layout from "../../components/Layout";
 import { useAuth } from "../../context/AuthContext";
 
 import { getMyResidents } from "../../api/residents";
+import { getMyRequests } from "../../api/joinRequests";
 import { getBillsByFlat } from "../../api/maintenance";
 import { createOrder, verifyPayment } from "../../api/payments";
+import {
+  getApprovedJoinRequests,
+  normalizeJoinRequests,
+} from "../../utils/joinRequestStatus";
 
 export default function MyBills() {
   const { user } = useAuth();
@@ -31,14 +36,28 @@ export default function MyBills() {
       console.log("Loading resident flats...");
 
       const residentResponse = await getMyResidents();
-
+      const requestResponse = await getMyRequests();
       const residentFlats = residentResponse.data ?? [];
+      const approvedRequests = getApprovedJoinRequests(normalizeJoinRequests(requestResponse.data));
+      const fallbackFlats = approvedRequests.filter(
+        (req) => !residentFlats.some(
+          (res) => res.flatNumber === req.flatNumber && res.blockName === req.blockName
+        )
+      ).map((req) => ({
+        flatNumber: req.flatNumber,
+        blockName: req.blockName,
+        floorNumber: req.floorNumber,
+        apartmentId: req.apartmentId ?? req.apartmentID ?? req.apartment_id,
+        residentType: req.residentType ?? 'OWNER',
+      }));
 
-      console.log("Resident Flats:", residentFlats);
+      const residentFlatsMerged = [...residentFlats, ...fallbackFlats];
 
-      setFlats(residentFlats);
+      console.log("Resident Flats:", residentFlatsMerged);
 
-      if (residentFlats.length === 0) {
+      setFlats(residentFlatsMerged);
+
+      if (residentFlatsMerged.length === 0) {
         setBills([]);
         return;
       }
