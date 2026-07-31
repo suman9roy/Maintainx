@@ -65,6 +65,9 @@ export default function Login() {
           {' '}·{' '}
           <Link to="/verify-email" style={styles.link}>Verify email</Link>
         </p>
+        <p style={styles.footer}>
+          <Link to="/forgot-password" style={styles.link}>Forgot password?</Link>
+        </p>
       </div>
     </div>
   );
