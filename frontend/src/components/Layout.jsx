@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
+import ChatWidget from './ai/ChatWidget';
 import './Layout.css';
 
 // Resident sidebar links
