@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
+import org.springframework.web.server.WebExceptionHandler;
 import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -54,7 +54,7 @@ import java.util.Map;
 @Order(-1)
 @Component
 @RequiredArgsConstructor
-public class GlobalGatewayExceptionHandler implements ErrorWebExceptionHandler {
+public class GlobalGatewayExceptionHandler implements WebExceptionHandler {
 
     private final ObjectMapper objectMapper;
 

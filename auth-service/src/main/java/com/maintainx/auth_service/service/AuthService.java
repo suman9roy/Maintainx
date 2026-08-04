@@ -146,7 +146,8 @@ public class AuthService {
      */
     public void forgotPassword(String email) {
 
-        repository.findByEmail(email).ifPresent(user ->
+        repository.findByEmail(email).ifPresent(
+                user ->
                 otpService.generateAndSendOtp(user.getEmail(), user.getName(), OtpPurpose.PASSWORD_RESET)
         );
     }

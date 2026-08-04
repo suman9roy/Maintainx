@@ -32,7 +32,8 @@ public class RouteValidator {
             "/expenses/category/",
             "/expenses/fund-summary",
             "/maintenance/",
-            "/payments"
+            "/payments",
+            "api/ai/*"
     );
 
     public Predicate<String> isSecured =

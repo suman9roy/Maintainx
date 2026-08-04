@@ -265,7 +265,25 @@ services:
     ports:
       - "8088:8088"
     networks: [maintainx-net]
-
+  aichat-service:
+    build:
+      context: .
+      dockerfile: aichat-service/Dockerfile
+    container_name: aichat-service
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xmx200m -Xms128m"
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_SERVER_URL: http://discovery-server:8761/eureka/
+    env_file:
+      - ./env/aichat-service.env
+    depends_on:
+      config-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8089:8089"
+    networks: [maintainx-net]
   frontend:
     build: ./frontend
     container_name: frontend
