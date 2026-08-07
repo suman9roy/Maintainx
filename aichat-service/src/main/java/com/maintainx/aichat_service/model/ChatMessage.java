@@ -1,4 +1,4 @@
-package com.maintainx.aichat_service.rag.model;
+package com.maintainx.aichat_service.model;
 
 import jakarta.persistence.*;
 
@@ -20,8 +20,7 @@ public class ChatMessage {
     @Column(name = "sender", nullable = false, length = 20)
     private Sender sender;
 
-    @Lob
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "text")
     private String content;
 
     @Column(name = "token_count", nullable = false)
