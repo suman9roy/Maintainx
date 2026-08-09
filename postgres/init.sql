@@ -10,6 +10,9 @@ CREATE DATABASE maintainx_notice;
 CREATE DATABASE maintainx_notification;
 CREATE DATABASE maintainx_maintenance;
 CREATE DATABASE maintainx_expense;
+CREATE DATABASE maintainx_ai;
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Optional extensions
 \connect maintainx_auth;
@@ -33,4 +36,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 \connect maintainx_maintenance;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 \connect maintainx_expense;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+\connect maintainx_expense;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+\connect maintainx_ai;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

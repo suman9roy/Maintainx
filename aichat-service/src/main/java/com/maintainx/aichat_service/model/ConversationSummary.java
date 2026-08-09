@@ -1,4 +1,4 @@
-package com.maintainx.aichat_service.rag.model;
+package com.maintainx.aichat_service.model;
 
 import jakarta.persistence.*;
 

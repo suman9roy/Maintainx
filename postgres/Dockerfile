@@ -1,4 +1,4 @@
-FROM postgres:17
+FROM pgvector/pgvector:pg17
 
 LABEL maintainer="Suman Roy"
 LABEL project="MaintainX"

@@ -3,7 +3,6 @@ import axios from 'axios';
 // All requests go to the gateway — frontend never talks to individual services
 const api = axios.create({
   baseURL: '/api',
-  headers: { 'Content-Type': 'application/json' },
 });
 
 // ── Request interceptor — attach JWT to every request ────────────────────────

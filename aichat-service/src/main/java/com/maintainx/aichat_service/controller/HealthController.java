@@ -14,7 +14,7 @@ import java.util.Map;
 @RestController
 public class HealthController {
 
-    @GetMapping("/api/ai/health")
+    @GetMapping("/ai/health")
     public ResponseEntity<Map<String, Object>> health() {
         return ResponseEntity.ok(Map.of(
                 "service", "maintainx-ai-platform",

@@ -24,6 +24,7 @@ const adminLinks = [
   { to: '/admin/complaints',       label: '📢 Complaints' },
   { to: '/admin/expenses',         label: '📊 Expenses' },
   { to: '/admin/notices',          label: '📌 Notices' },
+  { to: '/admin/knowledge-base',   label: '🧠 AI Knowledge Base' },
 ];
 
 // Super admin sidebar links

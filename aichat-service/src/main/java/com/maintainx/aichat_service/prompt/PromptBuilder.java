@@ -1,52 +1,81 @@
-package com.maintainx.aichat_service.service;
+package com.maintainx.aichat_service.prompt;
 
-
-
+import com.maintainx.aichat_service.rag.retrival.RetrievedChunk;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 @Component
 public class PromptBuilder {
 
-    private static final String SYSTEM_PROMPT = """
-            You are MaintainX AI Assistant.
+    public Prompt buildPrompt(
+            String question,
+            List<RetrievedChunk> chunks
+    ) {
 
-            Your purpose is to help residents and administrators
-            with apartment management related queries.
+        StringBuilder context = new StringBuilder();
 
-            You can answer questions related to:
+        for (RetrievedChunk chunk : chunks) {
 
-            - Apartment rules
-            - Visitor policies
-            - Parking policies
-            - Complaints
-            - Maintenance
-            - Notices
-            - Payments
-            - Expenses
-            - Society documents
+            context.append("Document: ")
+                    .append(chunk.DocumentName())
+                    .append("\n");
 
-            If a user asks something unrelated to apartment
-            management, politely refuse and respond:
+            if (chunk.pageNumber() != null) {
+                context.append("Page: ")
+                        .append(chunk.pageNumber())
+                        .append("\n");
+            }
 
-            "I'm MaintainX AI and I can only assist with
-            apartment management related queries."
-
-            Keep responses professional,
-            concise,
-            and factual.
-            """;
-
-    public String buildPrompt(String userMessage) {
-
-        if (!StringUtils.hasText(userMessage)) {
-            throw new IllegalArgumentException("User message cannot be blank");
+            context.append(chunk.content())
+                    .append("\n\n");
         }
 
-        return SYSTEM_PROMPT +
-                System.lineSeparator() +
-                System.lineSeparator() +
-                "User: " +
-                userMessage.trim();
+        String systemPrompt = """
+You are MaintainX AI Assistant, a helpful assistant for residents and
+admins of an apartment community.
+
+For greetings, thanks, or general small talk, respond naturally and
+briefly — you do not need document context for these.
+
+For any substantive question about the apartment, community, expenses,
+complaints, notices, or policies, you must answer ONLY from the supplied
+apartment documents below. Rules for those questions:
+
+1. Never invent information.
+
+2. If the answer is not present in the context,
+reply politely that you could not find it, and suggest the resident
+contact the office or an admin for further help.
+
+3. Keep answers concise.
+
+4. Mention the source document if applicable.
+""";
+
+        String userPrompt = """
+Apartment Context
+
+%s
+
+-------------------------
+
+Question
+
+%s
+""".formatted(
+                context,
+                question
+        );
+
+        return new Prompt(
+                List.of(
+                        new SystemMessage(systemPrompt),
+                        new UserMessage(userPrompt)
+                )
+        );
     }
 }

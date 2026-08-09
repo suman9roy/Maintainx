@@ -1,6 +1,7 @@
-package com.maintainx.aiplatform.repository;
+package com.maintainx.aichat_service.repository;
 
-import com.maintainx.aiplatform.model.ChatSession;
+
+import com.maintainx.aichat_service.model.ChatSession;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -11,4 +12,5 @@ public interface ChatSessionRepository extends JpaRepository<ChatSession, UUID> 
     List<ChatSession> findByUserIdOrderByUpdatedAtDesc(String userId);
 
     List<ChatSession> findByUserIdAndStatusOrderByUpdatedAtDesc(String userId, ChatSession.SessionStatus status);
+
 }

@@ -28,6 +28,7 @@ import AdminBills        from './pages/admin/Bills';
 import AdminComplaints   from './pages/admin/Complaints';
 import AdminExpenses     from './pages/admin/Expenses';
 import AdminNotices      from './pages/admin/Notices';
+import KnowledgeBase     from './pages/admin/KnowledgeBase';
 import SuperAdminApartments from './pages/superadmin/Apartments';
 
 export default function App() {
@@ -64,6 +65,7 @@ export default function App() {
               <Route path="/admin/complaints" element={<AdminComplaints />} />
               <Route path="/admin/expenses" element={<AdminExpenses />} />
               <Route path="/admin/notices" element={<AdminNotices />} />
+              <Route path="/admin/knowledge-base" element={<KnowledgeBase />} />
             </Route>
 
             {/* Super admin routes */}

@@ -145,13 +145,27 @@
 }
 
 .ai-bubble {
-  max-width: 80%;
+  max-width: 82%;
   padding: 9px 12px;
   border-radius: 14px;
   font-size: 13.5px;
-  line-height: 1.4;
+  line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.ai-markdown p,
+.ai-markdown ul {
+  margin: 0 0 6px;
+}
+
+.ai-markdown-list {
+  padding-left: 16px;
+  margin-top: 4px;
+}
+
+.ai-markdown-spacer {
+  height: 6px;
 }
 
 .ai-msg-user .ai-bubble {
@@ -220,6 +234,18 @@
   padding: 10px;
   border-top: 1px solid #e2e8f0;
   background: #fff;
+  flex-direction: column;
+}
+
+.ai-chat-error {
+  width: 100%;
+  color: #b91c1c;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.ai-chat-input textarea {
+  width: 100%;
 }
 
 .ai-chat-input textarea {

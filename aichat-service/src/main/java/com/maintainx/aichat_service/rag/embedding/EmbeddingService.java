@@ -1,4 +1,11 @@
-package com.maintainx.aichat_service.rag;
+package com.maintainx.aichat_service.rag.embedding;
 
-public class ejhbm {
+
+
+
+
+public interface EmbeddingService {
+
+    float[] generateEmbedding(String text);
+
 }

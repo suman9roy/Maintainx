@@ -9,7 +9,7 @@ import java.util.UUID;
 public record DocumentView(
         UUID id,
         String apartmentId,
-        Long uploadedBy,
+        String uploadedBy,
         String originalFileName,
         String storedFileName,
         String contentType,

@@ -1,6 +1,8 @@
-package com.maintainx.aiplatform.dto;
+package com.maintainx.aichat_service.dto;
 
-import com.maintainx.aiplatform.model.ChatMessage;
+
+
+import com.maintainx.aichat_service.model.ChatMessage;
 
 import java.time.Instant;
 

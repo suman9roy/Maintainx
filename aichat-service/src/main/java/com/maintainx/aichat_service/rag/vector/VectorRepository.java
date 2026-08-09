@@ -1,4 +1,12 @@
-package com.maintainx.aichat_service.rag;
+package com.maintainx.aichat_service.rag.vector;
 
-public class dg {
+import java.util.UUID;
+
+public interface VectorRepository {
+
+    void saveEmbedding(
+            UUID chunkId,
+            float[] embedding
+    );
+
 }

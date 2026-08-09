@@ -1,4 +1,11 @@
 package com.maintainx.aichat_service.rag.chunking;
 
-public interface gj {
+
+
+import java.util.List;
+
+public interface ChunkingService {
+
+    List<DocumentChunkRequest> chunk(String text);
+
 }

@@ -1,6 +1,7 @@
-package com.maintainx.aiplatform.repository;
+package com.maintainx.aichat_service.repository;
 
-import com.maintainx.aiplatform.model.ChatMessage;
+
+import com.maintainx.aichat_service.model.ChatMessage;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 

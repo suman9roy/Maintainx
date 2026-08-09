@@ -7,13 +7,18 @@ import com.maintainx.aichat_service.model.DocumentChunk;
 import com.maintainx.aichat_service.mapper.DocumentChunkMapper;
 import com.maintainx.aichat_service.rag.chunking.DocumentChunkRequest;
 import com.maintainx.aichat_service.rag.embedding.EmbeddingService;
-import com.maintainx.aichat_service.rag.vector.VectorRepository;
 import com.maintainx.aichat_service.repository.DocumentChunkJpaRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChunkPersistenceServiceImpl
@@ -25,8 +30,6 @@ public class ChunkPersistenceServiceImpl
 
     private final DocumentChunkJpaRepository repository;
 
-    private final VectorRepository vectorRepository;
-
     @Override
     public void persist(
             AiDocument document,
@@ -34,24 +37,44 @@ public class ChunkPersistenceServiceImpl
     ) {
 
         for (DocumentChunkRequest chunk : chunks) {
-
+            log.info(
+                    "Persisting chunk {} for document {}",
+                    chunk.content(),
+                    document.getId()
+            );
             float[] embedding =
                     embeddingService.generateEmbedding(
                             chunk.content()
                     );
 
-            DocumentChunk entity =
-                    mapper.toEntity(document, chunk);
+            String embeddingVector = toVectorLiteral(embedding);
 
-            entity = repository.save(entity);
+            repository.insertChunkWithEmbedding(
+                    UUID.randomUUID(),
+                    document.getApartmentId(),
+                    chunk.chunkIndex(),
+                    chunk.content(),
+                    Instant.now(),
+                    document.getId(),
+                    embeddingVector,
+                    chunk.pageNumber(),
+                    chunk.section(),
+                    chunk.tokenCount()
+            );
 
-            vectorRepository.saveEmbedding(
-                    entity.getId(),
-                    embedding
+            log.info(
+                    "Successfully persisted chunk for document {}",
+                    document.getId()
             );
 
         }
 
+    }
+
+    private String toVectorLiteral(float[] embedding) {
+        return IntStream.range(0, embedding.length)
+                .mapToObj(i -> Float.toString(embedding[i]))
+                .collect(Collectors.joining(",", "[", "]"));
     }
 
 }

@@ -80,6 +80,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 }))
                 .build();
 
+        log.info("Forwarding {} {} with X-User-Id={} X-User-Role={} X-Apartment-Id={}",
+                method, path, userId, role, apartmentId);
+
         return chain.filter(mutated);
     }
 
@@ -128,6 +131,10 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         if (path.startsWith("/complaints")) {
             if (HttpMethod.POST.equals(method))              return false;
             if (path.matches("/complaints/resident/.+"))     return false;
+            return true;
+        }
+        //"/ai/documents" shoould only be accessible to ADMIN users, not residents
+        if (path.startsWith("/ai/documents")) {
             return true;
         }
 

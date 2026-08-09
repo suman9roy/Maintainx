@@ -1,4 +1,11 @@
 package com.maintainx.aichat_service.kafka.producer;
 
-public class zdG {
+
+
+import java.util.UUID;
+
+public interface DocumentEventPublisher {
+
+    void publishDocumentUploaded(UUID documentId);
+
 }

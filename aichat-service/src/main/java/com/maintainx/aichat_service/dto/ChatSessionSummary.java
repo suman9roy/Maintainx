@@ -1,6 +1,6 @@
-package com.maintainx.aiplatform.dto;
+package com.maintainx.aichat_service.dto;
 
-import com.maintainx.aiplatform.model.ChatSession;
+import com.maintainx.aichat_service.model.ChatSession;
 
 import java.time.Instant;
 import java.util.UUID;

@@ -1,4 +1,18 @@
 package com.maintainx.aichat_service.dto;
 
-public class sgsv {
+
+
+import java.time.Instant;
+
+public record DocumentUploadResponse(
+
+        String fileName,
+
+        long fileSize,
+
+        Instant uploadedAt,
+
+        String message
+
+) {
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { sendChatMessage } from '../../api/aiChat';
+import MarkdownMessage from './MarkdownMessage';
 import './ChatWidget.css';
 
 // Role-based suggested questions (Phase 8 / Phase 10 of steps.md)
@@ -31,6 +32,7 @@ export default function ChatWidget() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
   const bodyRef = useRef(null);
   const seededRef = useRef(false);
 
@@ -61,8 +63,11 @@ export default function ChatWidget() {
     setLoading(true);
 
     try {
-      const data = await sendChatMessage(trimmed);
-      setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
+      const data = await sendChatMessage(trimmed, sessionId);
+      if (data?.sessionId) {
+        setSessionId(data.sessionId);
+      }
+      setMessages((prev) => [...prev, { role: 'assistant', content: data?.message || data?.reply || 'No response received.' }]);
     } catch (err) {
       const msg = err?.response?.data?.message || 'Something went wrong. Please try again.';
       setError(msg);
@@ -82,6 +87,7 @@ export default function ChatWidget() {
   function handleNewChat() {
     seededRef.current = true;
     setMessages([{ role: 'assistant', content: initialGreeting(role) }]);
+    setSessionId(null);
     setError(null);
   }
 
@@ -106,7 +112,9 @@ export default function ChatWidget() {
           <div className="ai-chat-body" ref={bodyRef}>
             {messages.map((m, i) => (
               <div key={i} className={`ai-msg ai-msg-${m.role}`}>
-                <div className="ai-bubble">{m.content}</div>
+                <div className="ai-bubble">
+                  {m.role === 'assistant' ? <MarkdownMessage content={m.content} /> : m.content}
+                </div>
               </div>
             ))}
             {loading && (
@@ -129,6 +137,7 @@ export default function ChatWidget() {
           </div>
 
           <div className="ai-chat-input">
+            {error && <div className="ai-chat-error">{error}</div>}
             <textarea
               rows={1}
               value={input}
